@@ -1,8 +1,14 @@
 import { Button } from "@nighttrax/components/button";
 import { meaningOfLife } from "@nighttrax/foo";
 import React, { useState } from "react";
-import reactLogo from "./assets/react.svg";
+import reactLogo from "../../assets/react.svg";
+import { Link } from "react-router-dom";
+
+import Mb from "@mui/material/Button";
+import Switch from "@mui/material/Switch";
 import "./App.css";
+
+const label = { inputProps: { "aria-label": "Switch demo" } };
 
 const App = () => {
   const [count, setCount] = useState(meaningOfLife);
@@ -19,16 +25,27 @@ const App = () => {
       </div>
       <h1>Vite + React</h1>
       <div className="card">
+        <Switch {...label} size="small" color="warning" />
         <Button />
-        <button type="button" onClick={() => setCount((count) => count + 1)}>
+        <Mb
+          variant="outlined"
+          className="text-3xl"
+          onClick={() => setCount((count) => count + 1)}
+        >
           count is {count}
-        </button>
-        <p>
+        </Mb>
+        <p className="text-3xl text-red-500">
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>
       </div>
       <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
+        <Link to="/about" className="mr-2">
+          About
+        </Link>
+        <span className="mr-2 text-gray-800">|</span>
+        <Link to="/user" className="mr-5">
+          User
+        </Link>
       </p>
     </div>
   );
