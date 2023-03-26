@@ -29,12 +29,10 @@ const theme = createTheme({
 });
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <React.StrictMode>
-    <StyledEngineProvider injectFirst>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Route />
-      </ThemeProvider>
-    </StyledEngineProvider>
-  </React.StrictMode>
+  <StyledEngineProvider injectFirst>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Route />
+    </ThemeProvider>
+  </StyledEngineProvider>
 );

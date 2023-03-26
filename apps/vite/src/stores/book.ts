@@ -30,6 +30,12 @@ const asyncData = loadable(
   })
 );
 
+export const test = (b: number) => {
+  const a = 1;
+
+  return a + b;
+};
+
 export {
   count,
   price,

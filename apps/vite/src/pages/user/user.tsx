@@ -22,7 +22,12 @@ const User = () => {
       <p>总数：{value}</p>
       <Detail />
       <Todos />
-      <Link to="info/100">去info</Link>
+      <Link to="info/100" className="mr-3">
+        去info
+      </Link>
+      <Link to="comment" className="mr-2">
+        comments
+      </Link>
     </div>
   );
 };

@@ -6,7 +6,9 @@ export default function Expenses() {
     <div className="">
       <h2>About</h2>
       <p>
-        <Link to="/">go Index</Link>
+        <Link data-testid="custom-element" to="/">
+          go Index
+        </Link>
       </p>
     </div>
   );

@@ -9,6 +9,7 @@ import Notfund from "./pages/404";
 import UserLayout from "./pages/user/UserLayout";
 import User from "./pages/user/user";
 import Userinfo from "./pages/user/info";
+import Comment from "./pages/user/comments";
 
 const Routex = () => (
   <BrowserRouter>
@@ -19,6 +20,7 @@ const Routex = () => (
       <Route path="user" element={<UserLayout />}>
         <Route index path="" element={<User />} />
         <Route path="info/:id" element={<Userinfo />} />
+        <Route path="comment" element={<Comment />} />
       </Route>
     </Routes>
     <Footer />
