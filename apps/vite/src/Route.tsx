@@ -1,7 +1,8 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Layout from "./components/Layout";
 
-import Footer from "./components/Footer";
+// import Footer from "./components/Footer";
 
 import Home from "./pages/home/home";
 import About from "./pages/about/About";
@@ -13,17 +14,19 @@ import Comment from "./pages/user/comments";
 
 const Routex = () => (
   <BrowserRouter>
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="about" element={<About />} />
-      <Route path="*" element={<Notfund />} />
-      <Route path="user" element={<UserLayout />}>
-        <Route index path="" element={<User />} />
-        <Route path="info/:id" element={<Userinfo />} />
-        <Route path="comment" element={<Comment />} />
-      </Route>
-    </Routes>
-    <Footer />
+    <Layout>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="about" element={<About />} />
+        <Route path="*" element={<Notfund />} />
+        <Route path="user" element={<UserLayout />}>
+          <Route index path="" element={<User />} />
+          <Route path="info/:id" element={<Userinfo />} />
+          <Route path="comment" element={<Comment />} />
+        </Route>
+      </Routes>
+      {/* <Footer /> */}
+    </Layout>
   </BrowserRouter>
 );
 

@@ -6,9 +6,14 @@ import { Button } from "@mui/material";
 import Detail from "./components/detail";
 import Todos from "./components/todo";
 import { count } from "../../stores/book";
+import { setItem, getItem } from "../../libs/Cache";
 
 const User = () => {
   const [value, setValue] = useAtom(count);
+
+  // setItem("testkey", { a: "av", b: "bv" }, 10);
+
+  const v = getItem<{ a: string; b: string }>("testkey");
 
   const add = function () {
     setValue((pre) => pre + 1);
@@ -19,6 +24,7 @@ const User = () => {
       <Button variant="outlined" onClick={add}>
         +1
       </Button>
+      <p>缓存：{v ? v.a : ""}</p>
       <p>总数：{value}</p>
       <Detail />
       <Todos />

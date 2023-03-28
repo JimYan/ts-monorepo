@@ -1,18 +1,27 @@
 import React from "react";
-import { Link } from "react-router-dom";
 
 const Footer = () => (
-  <>
-    <Link to="/" className="mr-3">
-      Index
-    </Link>
-    <Link to="/about" className="mr-3">
-      About
-    </Link>
-    <Link to="/user" className="mr-3">
-      User
-    </Link>
-  </>
+  <footer className="bg-gray-200 mt-auto">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex justify-between">
+      <div className="text-gray-600">
+        © 2023 My Website. All rights reserved.
+      </div>
+      <div>
+        <a
+          href="https://github.com/my-username"
+          className="text-gray-600 hover:text-gray-800 mr-4"
+        >
+          GitHub
+        </a>
+        <a
+          href="https://twitter.com/my-username"
+          className="text-gray-600 hover:text-gray-800"
+        >
+          Twitter
+        </a>
+      </div>
+    </div>
+  </footer>
 );
 
 export default Footer;

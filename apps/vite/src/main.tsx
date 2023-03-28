@@ -10,7 +10,6 @@ import { CssBaseline } from "@mui/material";
 import Route from "./Route";
 
 import "./global.css";
-import "./index.css";
 
 const rootElement = document.getElementById("root") as HTMLElement;
 const theme = createTheme({
