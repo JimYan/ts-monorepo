@@ -11,6 +11,7 @@ import UserLayout from "./pages/user/UserLayout";
 import User from "./pages/user/user";
 import Userinfo from "./pages/user/info";
 import Comment from "./pages/user/comments";
+import CommentItem from "./pages/user/commentsItem";
 
 const Routex = () => (
   <BrowserRouter>
@@ -23,6 +24,7 @@ const Routex = () => (
           <Route index path="" element={<User />} />
           <Route path="info/:id" element={<Userinfo />} />
           <Route path="comment" element={<Comment />} />
+          <Route path="comment/:id" element={<CommentItem />} />
         </Route>
       </Routes>
       {/* <Footer /> */}

@@ -14,9 +14,11 @@
   "dependencies": {
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
+    "@mui/lab": "5.0.0-alpha.124",
     "@mui/material": "^5.11.13",
     "@nighttrax/components": "*",
     "@nighttrax/foo": "*",
+    "@tanstack/react-query": "^4.28.0",
     "autoprefixer": "~10.4.0",
     "jotai": "^2.0.3",
     "postcss": "~8.4.13",
@@ -24,7 +26,8 @@
     "react-dom": "~18.2.0",
     "react-router-dom": "^6.9.0",
     "react-scripts": "~5.0.0",
-    "swr": "^2.1.1"
+    "swr": "^2.1.1",
+    "type-fest": "^3.7.2"
   },
   "devDependencies": {
     "@testing-library/dom": "^9.2.0",
