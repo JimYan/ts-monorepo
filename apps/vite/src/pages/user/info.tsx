@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import Button from "@mui/material/Button";
 import { getPostList } from "../../models/posts";
+import type { AsyncReturnType } from "type-fest";
 
 const User = () => {
   const params = useParams();
@@ -11,15 +12,15 @@ const User = () => {
     navigate("/");
   };
 
-  const [lists, setLists] = useState<{ title: string }[]>([]);
+  const [lists, setLists] = useState<AsyncReturnType<typeof getPostList>>(
+    [] as any
+  );
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     getPostList().then((resp) => {
-      console.log(resp);
       setLists(resp);
     });
-    // setLists(list);
   }, []);
 
   return (

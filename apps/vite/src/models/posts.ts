@@ -6,7 +6,8 @@ import { useState } from "react";
 import { QueryFunctionContext, useQuery } from "@tanstack/react-query";
 
 import type { SetOptional } from "type-fest";
-import { IResp, query, post } from "./util";
+// import { IResp, query, post } from "./util";
+import { IResp, query, post } from "@nighttrax/lib";
 
 export type ICommentItem = {
   id: number;
@@ -20,7 +21,7 @@ export type IPostItem = {
 export type IAddCommentItem = SetOptional<ICommentItem, "id" | "postId">;
 
 export const getPostList = async () => {
-  const resp = await query<IPostItem>("/posts");
+  const resp = await query<IPostItem[]>("/posts");
   return resp;
 };
 

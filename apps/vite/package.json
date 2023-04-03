@@ -18,6 +18,7 @@
     "@mui/material": "^5.11.13",
     "@nighttrax/components": "*",
     "@nighttrax/foo": "*",
+    "@nighttrax/lib": "*",
     "@tanstack/react-query": "^4.28.0",
     "autoprefixer": "~10.4.0",
     "jotai": "^2.0.3",

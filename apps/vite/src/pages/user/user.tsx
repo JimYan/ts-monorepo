@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 import { useAtom } from "jotai";
 import { Button } from "@mui/material";
 
@@ -12,20 +12,21 @@ import Tab from "@mui/material/Tab";
 import Detail from "./components/detail";
 import Todos from "./components/todo";
 import { count } from "../../stores/book";
-import { setItem, getItem } from "../../libs/Cache";
+import { setItem, getItem } from "@nighttrax/lib";
 
 const User = () => {
   const [value, setValue] = useAtom(count);
 
   const [tabNow, setTabs] = React.useState("1");
 
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleChange = (event: React.SyntheticEvent, newValue: string) => {
     setTabs(newValue);
   };
 
-  // setItem("testkey", { a: "av", b: "bv" }, 10);
+  setItem("testkey", { a: "av", b: "bv" }, 10);
 
   const v = getItem<{ a: string; b: string }>("testkey");
+  console.log(v);
 
   const add = function () {
     setValue((pre) => pre + 1);

@@ -5,14 +5,14 @@ import {
   StyledEngineProvider,
   ThemeProvider,
 } from "@mui/material/styles";
-
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
 import { CssBaseline } from "@mui/material";
-import Route from "./Route";
-import { defaultFetch } from "./models/util";
 import "./global.css";
+import Route from "./Route";
+import { setPrefix, defaultFetch } from "@nighttrax/lib";
 
+setPrefix(import.meta.env.VITE_API_PATH); // 设置请求的前缀
+// 设置默认的queryFn函数。
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
