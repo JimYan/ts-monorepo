@@ -1,5 +1,5 @@
 import React from "react";
-import { addComments, IAddCommentItem } from "../../models/posts";
+import { addComments } from "../../models/posts";
 import { IError } from "../../models/util";
 import { useMutation } from "@tanstack/react-query";
 import { Button } from "@mui/material";
@@ -9,7 +9,7 @@ export const AddComment = () => {
   const mutation = useMutation<
     AsyncReturnType<typeof addComments>,
     IError,
-    IAddCommentItem
+    Parameters<typeof addComments>[0]
   >(addComments);
 
   return (
@@ -26,7 +26,7 @@ export const AddComment = () => {
 
           <Button
             onClick={() => {
-              mutation.mutate({ body: "asdf", postId: 1 });
+              mutation.mutate({ body: "asdf" });
             }}
           >
             Create Todo
