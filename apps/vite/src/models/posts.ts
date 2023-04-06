@@ -1,12 +1,9 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable padding-line-between-statements */
 /* eslint-disable arrow-body-style */
-// import { getRealUrl } from "./util";
 import { useState } from "react";
 import { QueryFunctionContext, useQuery } from "@tanstack/react-query";
-
 import type { SetOptional } from "type-fest";
-// import { IResp, query, post } from "./util";
 import { IResp, query, post } from "@nighttrax/lib";
 
 export type ICommentItem = {

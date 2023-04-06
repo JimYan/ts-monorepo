@@ -4,6 +4,8 @@ import Button from "@mui/material/Button";
 import { getPostList } from "../../models/posts";
 import type { AsyncReturnType } from "type-fest";
 
+type IList = AsyncReturnType<typeof getPostList>;
+
 const User = () => {
   const params = useParams();
   const navigate = useNavigate();
@@ -12,9 +14,7 @@ const User = () => {
     navigate("/");
   };
 
-  const [lists, setLists] = useState<AsyncReturnType<typeof getPostList>>(
-    [] as any
-  );
+  const [lists, setLists] = useState<IList>([]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {

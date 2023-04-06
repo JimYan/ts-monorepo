@@ -26,9 +26,8 @@ const User = () => {
   setItem("testkey", { a: "av", b: "bv" }, 10);
 
   const v = getItem<{ a: string; b: string }>("testkey");
-  console.log(v);
 
-  const add = function () {
+  const add = () => {
     setValue((pre) => pre + 1);
   };
 
