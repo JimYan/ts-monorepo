@@ -2,14 +2,20 @@ import {
   Controller,
   Get,
   Inject,
-  HttpException,
-  HttpStatus,
   Query,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { BookService } from 'src/book/book/book.service';
 import { UserException } from 'src/common/exception/UserException';
 import { queryDto } from './account.dot';
+import { Cache } from 'cache-manager';
+import {
+  CACHE_MANAGER,
+  CacheInterceptor,
+  CacheKey,
+  CacheTTL,
+} from '@nestjs/cache-manager';
 
 @Controller('account')
 export class AccountController {
@@ -19,14 +25,19 @@ export class AccountController {
   @Inject(BookService)
   private readonly bookService: BookService;
 
+  @Inject(CACHE_MANAGER)
+  private readonly cacheManager: Cache;
+
   @Get()
   index() {
     return 'index';
   }
 
+  @UseInterceptors(CacheInterceptor)
+  @CacheTTL(10 * 1000)
   @Get('/info')
   async getInfo(@Query() query: queryDto) {
-    // console.log(query);
+    await this.cacheManager.set('key', 'value', 5000);
     return {
       account: await this.accountService.getInfo(
         {
@@ -39,6 +50,7 @@ export class AccountController {
         },
       ),
       book: await this.bookService.getList(),
+      time: new Date().toISOString(),
     };
   }
 
