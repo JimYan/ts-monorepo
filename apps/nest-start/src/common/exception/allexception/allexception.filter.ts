@@ -18,13 +18,14 @@ export class AllexceptionFilter implements ExceptionFilter {
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    console.log('allexception');
     console.log(exception);
     response.status(HttpStatus.OK).json({
       code: -1,
       msg: '服务器异常',
       timestamp: new Date().toISOString(),
       path: request.url,
+      error: exception,
+      // stack:exception.
     });
   }
 }

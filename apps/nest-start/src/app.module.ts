@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { Global, MiddlewareConsumer, Module } from '@nestjs/common';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ConfigModule } from '@nestjs/config';
 
@@ -11,7 +11,9 @@ import { AccountModule } from './account/account.module';
 import { LoggerMiddleware } from './common/middleware/logger/logger.middleware';
 import type { RedisClientOptions } from 'redis';
 import * as redisStore from 'cache-manager-redis-store';
+import { PrismaService } from './prisma.service';
 
+@Global()
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -27,7 +29,8 @@ import * as redisStore from 'cache-manager-redis-store';
     }),
   ],
   controllers: [AppController, CatsController],
-  providers: [AppService, CatsService],
+  providers: [AppService, CatsService, PrismaService],
+  exports: [PrismaService],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {

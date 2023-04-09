@@ -6,11 +6,13 @@ import {
   Param,
   UseInterceptors,
   Logger,
+  Body,
+  Post,
 } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { BookService } from 'src/book/book/book.service';
 import { UserException } from 'src/common/exception/UserException';
-import { queryDto } from './account.dto';
+import { queryDto, userDto } from './account.dto';
 import { Cache } from 'cache-manager';
 import {
   CACHE_MANAGER,
@@ -18,6 +20,7 @@ import {
   CacheKey,
   CacheTTL,
 } from '@nestjs/cache-manager';
+import { PrismaService } from '../../prisma.service';
 
 @Controller('account')
 export class AccountController {
@@ -31,6 +34,9 @@ export class AccountController {
 
   @Inject(CACHE_MANAGER)
   private readonly cacheManager: Cache;
+
+  @Inject(PrismaService)
+  private readonly prismaService: PrismaService;
 
   @Get()
   index() {
@@ -64,6 +70,54 @@ export class AccountController {
   @Get('/error')
   errorDemo() {
     throw new UserException(40010, '异常');
+  }
+
+  @Get('/all')
+  async all() {
+    const allUsers = await this.prismaService.user.findFirst({
+      where: {
+        id: 2,
+      },
+      select: {
+        id: true,
+        email: true,
+      },
+    });
+
+    return allUsers;
+  }
+
+  @Post('/add')
+  async add(@Body() info: userDto) {
+    const res = await this.prismaService.user.create({
+      data: info,
+    });
+
+    console.log(res);
+    return res;
+  }
+
+  @Post('/update/:id')
+  async update(@Param() param: queryDto, @Body() info: userDto) {
+    const res = await this.prismaService.user.update({
+      data: info,
+      where: {
+        id: param.id,
+      },
+    });
+    console.log(res);
+    return param;
+  }
+
+  @Post('/delete/:id')
+  async del(@Param() param: queryDto) {
+    const res = await this.prismaService.user.delete({
+      where: {
+        id: param.id,
+      },
+    });
+    console.log(res);
+    return param;
   }
 
   @Get('/error2')
