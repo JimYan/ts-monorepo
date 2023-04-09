@@ -34,10 +34,10 @@ export class AccountController {
   }
 
   @UseInterceptors(CacheInterceptor)
-  @CacheTTL(10 * 1000)
+  @CacheTTL(10)
   @Get('/info')
   async getInfo(@Query() query: queryDto) {
-    await this.cacheManager.set('key', 'value', 5000);
+    // await this.cacheManager.set('key', 'value', { ttl: 500 });
     return {
       account: await this.accountService.getInfo(
         {

@@ -24,24 +24,17 @@ export class AppController {
   }
 
   @Get()
-  // @CacheKey('custom_key2')
-  // @CacheTTL(1)
   async getHello() {
-    await this.cacheManager.set('key', 'value', 5000);
-    // const value = await this.cacheManager.get('key');
-    // console.log(value);
+    await this.cacheManager.set('keyasdf', 'valueasdf', { ttl: 5000 });
     return this.appService.getHello();
   }
 
   @Get('/cache')
-  // @CacheKey('custom_key2')
-  // @CacheTTL(1)
   async getCache() {
-    // await this.cacheManager.set('key', 'value');
-    const cacheData = await this.cacheManager.get('key');
+    const cacheData = await this.cacheManager.get('keyasdf');
     console.log(cacheData);
 
-    // this.cacheManager.wrap
+    await this.appService.setCache('k2', 'v2');
     return { cacheData };
   }
 }

@@ -1,5 +1,7 @@
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { CacheModule } from '@nestjs/cache-manager';
+import { ConfigModule } from '@nestjs/config';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CatsController } from './cats/cats.controller';
@@ -7,12 +9,23 @@ import { CatsService } from './cats/cats.service';
 import { BookModule } from './book/book.module';
 import { AccountModule } from './account/account.module';
 import { LoggerMiddleware } from './common/middleware/logger/logger.middleware';
+import type { RedisClientOptions } from 'redis';
+import * as redisStore from 'cache-manager-redis-store';
 
-const cache = CacheModule.register({
-  isGlobal: true,
-});
 @Module({
-  imports: [BookModule, AccountModule, cache],
+  imports: [
+    ConfigModule.forRoot(),
+    BookModule,
+    AccountModule,
+    CacheModule.register<RedisClientOptions>({
+      isGlobal: true,
+      store: redisStore,
+      host: process.env.redisHost,
+      port: process.env.redisPort,
+      password: process.env.redisPassword,
+      db: 1,
+    }),
+  ],
   controllers: [AppController, CatsController],
   providers: [AppService, CatsService],
 })
