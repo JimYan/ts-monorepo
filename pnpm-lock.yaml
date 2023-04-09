@@ -132,6 +132,7 @@ importers:
       '@nestjs/config': ^2.3.1
       '@nestjs/core': ^9.0.5
       '@nestjs/platform-express': ^9.0.0
+      '@nestjs/schedule': ^2.2.1
       '@nestjs/schematics': ^9.0.0
       '@nestjs/swagger': ^6.3.0
       '@nestjs/testing': ^9.0.0
@@ -172,6 +173,7 @@ importers:
       '@nestjs/config': 2.3.1_fipbdz7qhdiauthzsrt4bq6tsq
       '@nestjs/core': 9.3.1_mxuzwgdlmkyxkz5qwd5xy75hm4
       '@nestjs/platform-express': 9.3.1_22j2lmearpmfr73ppsmjho62xq
+      '@nestjs/schedule': 2.2.1_is44h33kwk6akmv6kgslbvdmwi
       '@nestjs/swagger': 6.3.0_25mb2iazsxw3kxf3c5hxmogl5q
       '@prisma/client': 4.12.0_prisma@4.12.0
       '@types/cache-manager': 4.0.2
@@ -3851,6 +3853,20 @@ packages:
       tslib: 2.4.1
     transitivePeerDependencies:
       - supports-color
+
+  /@nestjs/schedule/2.2.1_is44h33kwk6akmv6kgslbvdmwi:
+    resolution: {integrity: sha512-7jev9Q3aFnRajKAi/At+9rzwflZNN10SA5PcdCvxc35GFfTdM2a6O5GA7tiIbLuOOzdjPYPbC3RxP4tpXOHVWw==}
+    peerDependencies:
+      '@nestjs/common': ^7.0.0 || ^8.0.0 || ^9.0.0
+      '@nestjs/core': ^7.0.0 || ^8.0.0 || ^9.0.0
+      reflect-metadata: ^0.1.12
+    dependencies:
+      '@nestjs/common': 9.3.1_uisgqpdqsnlcxoqiidaahrhoi4
+      '@nestjs/core': 9.3.1_mxuzwgdlmkyxkz5qwd5xy75hm4
+      cron: 2.3.0
+      reflect-metadata: 0.1.13
+      uuid: 9.0.0
+    dev: false
 
   /@nestjs/schematics/9.0.4_n7i3t5jmyrdrkypb5pvfihcmg4:
     resolution: {integrity: sha512-egurCfAc4e5i1r2TmeAF0UrOKejFmT5oTdv4b7HcOVPupc3QGU7CbEfGleL3mkM5AjrixTQeMxU9bJ00ttAbGg==}
@@ -8907,6 +8923,12 @@ packages:
 
   /create-require/1.1.1:
     resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
+
+  /cron/2.3.0:
+    resolution: {integrity: sha512-ZN5HP8zDY41sJolMsbc+GksRATcbvkPKF5wR/qc8FrV4NBVi9ORQa1HmYa5GydaysUB80X9XpRlRkooa5uEtTA==}
+    dependencies:
+      luxon: 3.3.0
+    dev: false
 
   /cross-env/7.0.3:
     resolution: {integrity: sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==}
@@ -14954,6 +14976,11 @@ packages:
   /lru-cache/7.18.3:
     resolution: {integrity: sha512-jumlc0BIUrS3qJGgIkWZsyfAM7NCWiBcCDhnd+3NNM5KbBmLTgHVfWBcg6W+rLUsIpzpERPsvwUP7CckAQSOoA==}
     engines: {node: '>=12'}
+
+  /luxon/3.3.0:
+    resolution: {integrity: sha512-An0UCfG/rSiqtAIiBPO0Y9/zAnHUZxAMiCpTd5h2smgsj7GGmcenvrvww2cqNA8/4A5ZrD1gJpHN2mIHZQF+Mg==}
+    engines: {node: '>=12'}
+    dev: false
 
   /lz-string/1.5.0:
     resolution: {integrity: sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ==}

@@ -13,11 +13,14 @@ import type { RedisClientOptions } from 'redis';
 import * as redisStore from 'cache-manager-redis-store';
 import { PrismaService } from './prisma.service';
 import { UsersModule } from './users/users.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TaskService } from './task/task.service';
 
 @Global()
 @Module({
   imports: [
     ConfigModule.forRoot(),
+    ScheduleModule.forRoot(),
     BookModule,
     AccountModule,
     CacheModule.register<RedisClientOptions>({
@@ -31,7 +34,7 @@ import { UsersModule } from './users/users.module';
     UsersModule,
   ],
   controllers: [AppController, CatsController],
-  providers: [AppService, CatsService, PrismaService],
+  providers: [AppService, CatsService, PrismaService, TaskService],
   exports: [PrismaService],
 })
 export class AppModule {
