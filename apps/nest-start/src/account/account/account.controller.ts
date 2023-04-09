@@ -3,13 +3,14 @@ import {
   Get,
   Inject,
   Query,
+  Param,
   UseInterceptors,
   Logger,
 } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { BookService } from 'src/book/book/book.service';
 import { UserException } from 'src/common/exception/UserException';
-import { queryDto } from './account.dot';
+import { queryDto } from './account.dto';
 import { Cache } from 'cache-manager';
 import {
   CACHE_MANAGER,
@@ -44,7 +45,6 @@ export class AccountController {
     this.logger.log('info...');
     this.logger.warn('info...');
     this.logger.error('error...');
-    // await this.cacheManager.set('key', 'value', { ttl: 500 });
     return {
       account: await this.accountService.getInfo(
         {

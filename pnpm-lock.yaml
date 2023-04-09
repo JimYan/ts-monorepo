@@ -133,6 +133,7 @@ importers:
       '@nestjs/core': ^9.0.5
       '@nestjs/platform-express': ^9.0.0
       '@nestjs/schematics': ^9.0.0
+      '@nestjs/swagger': ^6.3.0
       '@nestjs/testing': ^9.0.0
       '@types/cache-manager': ^4.0.2
       '@types/express': ^4.17.13
@@ -155,6 +156,7 @@ importers:
       rxjs: ^7.5.5
       source-map-support: ^0.5.21
       supertest: ^6.2.4
+      swagger-ui-express: ^4.6.2
       ts-jest: ^28.0.5
       ts-loader: ^9.3.1
       ts-node: ^10.8.2
@@ -167,6 +169,7 @@ importers:
       '@nestjs/config': 2.3.1_fipbdz7qhdiauthzsrt4bq6tsq
       '@nestjs/core': 9.3.1_mxuzwgdlmkyxkz5qwd5xy75hm4
       '@nestjs/platform-express': 9.3.1_22j2lmearpmfr73ppsmjho62xq
+      '@nestjs/swagger': 6.3.0_25mb2iazsxw3kxf3c5hxmogl5q
       '@types/cache-manager': 4.0.2
       cache-manager: 4.1.0
       cache-manager-redis-store: 2.0.0
@@ -175,6 +178,7 @@ importers:
       redis: 3.1.2
       reflect-metadata: 0.1.13
       rxjs: 7.8.0
+      swagger-ui-express: 4.6.2
       typescript-param-validator: 1.1.0
     devDependencies:
       '@nestjs/cli': 9.3.0
@@ -3807,6 +3811,25 @@ packages:
     transitivePeerDependencies:
       - encoding
 
+  /@nestjs/mapped-types/1.2.2_reiiewfwe532odw3vxsy7m57ae:
+    resolution: {integrity: sha512-3dHxLXs3M0GPiriAcCFFJQHoDFUuzTD5w6JDhE7TyfT89YKpe6tcCCIqOZWdXmt9AZjjK30RkHRSFF+QEnWFQg==}
+    peerDependencies:
+      '@nestjs/common': ^7.0.8 || ^8.0.0 || ^9.0.0
+      class-transformer: ^0.2.0 || ^0.3.0 || ^0.4.0 || ^0.5.0
+      class-validator: ^0.11.1 || ^0.12.0 || ^0.13.0 || ^0.14.0
+      reflect-metadata: ^0.1.12
+    peerDependenciesMeta:
+      class-transformer:
+        optional: true
+      class-validator:
+        optional: true
+    dependencies:
+      '@nestjs/common': 9.3.1_uisgqpdqsnlcxoqiidaahrhoi4
+      class-transformer: 0.5.1
+      class-validator: 0.14.0
+      reflect-metadata: 0.1.13
+    dev: false
+
   /@nestjs/platform-express/9.3.1_22j2lmearpmfr73ppsmjho62xq:
     resolution: {integrity: sha512-MOdsV+TIBM7xUrj/sW9uowYIRuBDmrobMJ94mrF5aCzfjLiV+6UmgIyaM8hRQpbkQXHkP0YMZZeBDOBNTISCBw==}
     peerDependencies:
@@ -3852,6 +3875,35 @@ packages:
     transitivePeerDependencies:
       - chokidar
     dev: true
+
+  /@nestjs/swagger/6.3.0_25mb2iazsxw3kxf3c5hxmogl5q:
+    resolution: {integrity: sha512-Gnig189oa1tD+h0BYIfUwhp/wvvmTn6iO3csR2E4rQrDTgCxSxZDlNdfZo3AC+Rmf8u0KX4ZAX1RZN1qXTtC7A==}
+    peerDependencies:
+      '@fastify/static': ^6.0.0
+      '@nestjs/common': ^9.0.0
+      '@nestjs/core': ^9.0.0
+      class-transformer: '*'
+      class-validator: '*'
+      reflect-metadata: ^0.1.12
+    peerDependenciesMeta:
+      '@fastify/static':
+        optional: true
+      class-transformer:
+        optional: true
+      class-validator:
+        optional: true
+    dependencies:
+      '@nestjs/common': 9.3.1_uisgqpdqsnlcxoqiidaahrhoi4
+      '@nestjs/core': 9.3.1_mxuzwgdlmkyxkz5qwd5xy75hm4
+      '@nestjs/mapped-types': 1.2.2_reiiewfwe532odw3vxsy7m57ae
+      class-transformer: 0.5.1
+      class-validator: 0.14.0
+      js-yaml: 4.1.0
+      lodash: 4.17.21
+      path-to-regexp: 3.2.0
+      reflect-metadata: 0.1.13
+      swagger-ui-dist: 4.18.2
+    dev: false
 
   /@nestjs/testing/9.4.0_lqms3jbt4jegwm4cog6ibtl4mu:
     resolution: {integrity: sha512-xZWp363P4otcebg++gSjUcdCfTK0RorORzyFq3aLaSAQOlq8kxfFDRIKzEATR4aOUfqTMMsAA8lhnMJWf35N6A==}
@@ -18937,6 +18989,19 @@ packages:
       csso: 4.2.0
       picocolors: 1.0.0
       stable: 0.1.8
+
+  /swagger-ui-dist/4.18.2:
+    resolution: {integrity: sha512-oVBoBl9Dg+VJw8uRWDxlyUyHoNEDC0c1ysT6+Boy6CTgr2rUcLcfPon4RvxgS2/taNW6O0+US+Z/dlAsWFjOAQ==}
+    dev: false
+
+  /swagger-ui-express/4.6.2:
+    resolution: {integrity: sha512-MHIOaq9JrTTB3ygUJD+08PbjM5Tt/q7x80yz9VTFIatw8j5uIWKcr90S0h5NLMzFEDC6+eVprtoeA5MDZXCUKQ==}
+    engines: {node: '>= v0.10.32'}
+    peerDependencies:
+      express: '>=4.0.0'
+    dependencies:
+      swagger-ui-dist: 4.18.2
+    dev: false
 
   /swr/2.1.1_react@18.2.0:
     resolution: {integrity: sha512-OgwqZmpjOgxNbaez6qzTVqiRWn+Ti5Uzmktk2c01Afqwc50q6z15DeNC8m9G1aY+w2BwEAsKvk59iq6aHlhgyw==}
