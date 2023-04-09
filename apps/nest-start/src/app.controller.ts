@@ -34,7 +34,7 @@ export class AppController {
     const cacheData = await this.cacheManager.get('keyasdf');
     console.log(cacheData);
 
-    await this.appService.setCache('k2', 'v2');
+    await this.appService.setCache('k2', 'v2', 100);
     return { cacheData };
   }
 }

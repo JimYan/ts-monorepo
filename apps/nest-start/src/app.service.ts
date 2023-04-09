@@ -11,8 +11,8 @@ export class AppService {
     return 'Hello World!';
   }
 
-  async setCache(key, value): Promise<string> {
-    await this.cacheService.set(key, value, { ttl: 0 });
+  async setCache(key, value, ttl = 0): Promise<string> {
+    await this.cacheService.set(key, value, { ttl });
     return 'ok';
   }
 }

@@ -18,7 +18,7 @@ import * as redisStore from 'cache-manager-redis-store';
     BookModule,
     AccountModule,
     CacheModule.register<RedisClientOptions>({
-      isGlobal: true,
+      // isGlobal: true,
       store: redisStore,
       host: process.env.redisHost,
       port: process.env.redisPort,
