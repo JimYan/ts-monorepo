@@ -12,6 +12,7 @@ import { LoggerMiddleware } from './common/middleware/logger/logger.middleware';
 import type { RedisClientOptions } from 'redis';
 import * as redisStore from 'cache-manager-redis-store';
 import { PrismaService } from './prisma.service';
+import { UsersModule } from './users/users.module';
 
 @Global()
 @Module({
@@ -27,6 +28,7 @@ import { PrismaService } from './prisma.service';
       password: process.env.redisPassword,
       db: 1,
     }),
+    UsersModule,
   ],
   controllers: [AppController, CatsController],
   providers: [AppService, CatsService, PrismaService],
