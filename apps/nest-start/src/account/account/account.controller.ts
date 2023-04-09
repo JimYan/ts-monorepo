@@ -4,6 +4,7 @@ import {
   Inject,
   Query,
   UseInterceptors,
+  Logger,
 } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { BookService } from 'src/book/book/book.service';
@@ -19,6 +20,8 @@ import {
 
 @Controller('account')
 export class AccountController {
+  private readonly logger = new Logger('AccountController');
+
   @Inject(AccountService)
   private readonly accountService: AccountService;
 
@@ -37,6 +40,10 @@ export class AccountController {
   @CacheTTL(10)
   @Get('/info')
   async getInfo(@Query() query: queryDto) {
+    this.logger.debug('info...');
+    this.logger.log('info...');
+    this.logger.warn('info...');
+    this.logger.error('error...');
     // await this.cacheManager.set('key', 'value', { ttl: 500 });
     return {
       account: await this.accountService.getInfo(
