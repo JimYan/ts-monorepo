@@ -15,6 +15,7 @@ import { PrismaService } from './prisma.service';
 import { UsersModule } from './users/users.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TaskService } from './task/task.service';
+import { HeroModule } from './hero/hero.module';
 
 @Global()
 @Module({
@@ -32,6 +33,7 @@ import { TaskService } from './task/task.service';
       db: 1,
     }),
     UsersModule,
+    HeroModule,
   ],
   controllers: [AppController, CatsController],
   providers: [AppService, CatsService, PrismaService, TaskService],

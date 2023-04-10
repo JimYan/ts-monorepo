@@ -7,12 +7,12 @@ export class TaskService {
   constructor(private readonly usersService: UsersService) {}
   private readonly logger = new Logger('user/taskservice');
 
-  @Cron('* * * * * *')
-  async handleCron() {
-    // const info = await this.usersService.findOne(2);
-    // console.log(info);
-    this.logger.debug('Called when the current second');
-  }
+  // @Cron('* * * * * *')
+  // async handleCron() {
+  //   // const info = await this.usersService.findOne(2);
+  //   // console.log(info);
+  //   this.logger.debug('Called when the current second');
+  // }
 
   @Timeout(5000)
   handleTimeout() {
