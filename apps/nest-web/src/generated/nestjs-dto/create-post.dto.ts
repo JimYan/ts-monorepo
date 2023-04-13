@@ -1,5 +1,11 @@
+
+
+
+
+
+
 export class CreatePostDto {
   title: string;
-  content?: string;
-  published?: boolean;
+content?: string;
+published?: boolean;
 }

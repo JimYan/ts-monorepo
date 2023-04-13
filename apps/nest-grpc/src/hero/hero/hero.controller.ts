@@ -51,7 +51,6 @@ export class HeroController {
   @GrpcMethod('HeroesService', 'FindMany')
   async findMany(data: FindManyReq): Promise<FindManyResp> {
     // data.type.
-    console.log(data);
     this.logger.log(data);
     return {
       code: 0,
