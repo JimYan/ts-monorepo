@@ -73,8 +73,13 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
 
 ```sh
+# 注意，项目build的时候，一定要执行这2个命令。
 npx prisma generate --schema=prisma/photo.prisma
 npx prisma generate --schema=prisma/schema.prisma
 
+# 生成模块、controller、service。
 ./node_modules/.bin/nest g resource users
+
+
+./node_modules/.bin/proto-loader-gen-types --longs=String --enums=String --defaults --oneofs --grpcLib=@grpc/grpc-js --outDir=src/proto/interface src/proto/*.proto
 ```

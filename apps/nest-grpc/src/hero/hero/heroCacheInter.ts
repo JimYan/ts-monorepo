@@ -8,7 +8,7 @@ export class HeroCacheInterceptor extends CacheInterceptor {
     const [args, meta, call] = context.getArgs();
     const path = call.getPath();
 
-    if (path === '/hero.HeroesService/FindOne') return `${path}/${args.id}`;
+    if (path === '/demo.HeroesService/FindOne') return `${path}/${args.id}`;
     else {
       return ''; // 返回空，不缓存
     }

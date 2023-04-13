@@ -31,6 +31,6 @@ export class AllExceptionsFilter extends BaseRpcExceptionFilter {
       code = error.code;
       msg = error.msg;
     }
-    return of({ id: code, name: msg }); // todo 修改为正常的值.
+    return of({ code, msg: msg }); // todo 修改为正常的值.
   }
 }

@@ -8,9 +8,13 @@ export class HeroController {
 
   @Get()
   async findHero() {
-    const info = await this.heroService.getHero();
+    const info = await this.heroService.heroesService
+      .findOne({
+        source: 'heroservice',
+        id: 1,
+      })
+      .toPromise();
     console.log(info);
-    return info;
-    // return 'asdf';
+    return info.hero;
   }
 }

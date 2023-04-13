@@ -10,8 +10,11 @@ async function bootstrap() {
       transport: Transport.GRPC,
       options: {
         url: '0.0.0.0:3002',
-        package: 'hero',
-        protoPath: join(__dirname, 'hero/proto/hero.proto'),
+        package: 'wp.m1',
+        protoPath: join(
+          __dirname,
+          '../node_modules/@nighttrax/proto/proto/wp/m1/wp_m1_main.proto',
+        ),
       },
     },
   );
