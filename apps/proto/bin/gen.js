@@ -572,6 +572,66 @@ const CLIENT_RESERVED_METHOD_NAMES = new Set([
     "checkOptionalUnaryResponseArguments",
     "checkMetadataAndOptions",
 ]);
+function generateNestClientModuleProxy(formatter, serviceType, options) {
+    formatter.writeLine(`/* eslint-disable @typescript-eslint/no-unused-vars */
+import { DynamicModule, Module } from "@nestjs/common";
+import { ${serviceType.name}ClientStub } from "./${serviceType.name}ClientStub";
+@Module({
+  providers: [],
+  controllers: [],
+})
+export class ${serviceType.name}Module {
+  static forRoot(uri: string): DynamicModule {
+    return {
+      global: true,
+      module: ${serviceType.name}Module,
+      providers: [${serviceType.name}ClientStub,{
+          provide: "SERVICE_URI",
+          useValue: uri,
+        }],
+      exports: [${serviceType.name}ClientStub],
+    };
+  }
+}
+`);
+}
+function generateNestClientModuleServiceProxy(formatter, serviceType, options) {
+    // console.log(options);
+    console.log(serviceType);
+    const prefix = "../".repeat(serviceType.filename.split("/").length - 1);
+    console.log(getImportPath(serviceType));
+    const packagePath = getImportPath(serviceType).split("/");
+    packagePath.pop();
+    console.log(packagePath);
+    formatter.writeLine(`/* eslint-disable */
+import {Inject,Injectable, OnModuleInit } from "@nestjs/common";
+import { ClientProxyFactory, Transport } from "@nestjs/microservices";
+import { ${serviceType.name}Client as clientType } from "./${serviceType.name}";
+import { join } from "path";
+
+
+@Injectable()
+export class ${serviceType.name}ClientStub implements OnModuleInit {
+  public stub!: clientType;
+
+  @Inject("SERVICE_URI")
+  private readonly url: string | undefined;
+
+  onModuleInit() {
+    const client = ClientProxyFactory.create({
+      transport: Transport.GRPC,
+      options: {
+        package: "${packagePath.join(".")}",
+        url: this.url,
+        protoPath: join(__dirname, "${prefix}${serviceType.filename}"),
+      },
+    });
+
+    this.stub = client.getService("${serviceType.name}");
+  }
+}
+`);
+}
 function generateServiceClientInterface(formatter, serviceType, options) {
     const { outputName, inputName } = useNameFmter(options);
     if (options.includeComments) {
@@ -802,6 +862,7 @@ function generateRootFile(formatter, root, options) {
 function writeFile(filename, contents) {
     return __awaiter(this, void 0, void 0, function* () {
         yield fs.promises.mkdir(path.dirname(filename), { recursive: true });
+        // console.log(filename);
         return fs.promises.writeFile(filename, contents);
     });
 }
@@ -810,6 +871,7 @@ function generateFilesForNamespace(namespace, options) {
     for (const nested of namespace.nestedArray) {
         const fileFormatter = new TextFormatter();
         if (nested instanceof Protobuf.Type) {
+            // console.log("1");
             generateMessageInterfaces(fileFormatter, nested, options);
             if (options.verbose) {
                 console.log(`Writing ${options.outDir}/${getPath(nested)} from file ${nested.filename}`);
@@ -817,6 +879,7 @@ function generateFilesForNamespace(namespace, options) {
             filePromises.push(writeFile(`${options.outDir}/${getPath(nested)}`, fileFormatter.getFullText()));
         }
         else if (nested instanceof Protobuf.Enum) {
+            // console.log("2");
             generateEnumInterface(fileFormatter, nested, options);
             if (options.verbose) {
                 console.log(`Writing ${options.outDir}/${getPath(nested)} from file ${nested.filename}`);
@@ -824,11 +887,26 @@ function generateFilesForNamespace(namespace, options) {
             filePromises.push(writeFile(`${options.outDir}/${getPath(nested)}`, fileFormatter.getFullText()));
         }
         else if (nested instanceof Protobuf.Service) {
+            // console.log("3", nested);
             generateServiceInterfaces(fileFormatter, nested, options);
             if (options.verbose) {
                 console.log(`Writing ${options.outDir}/${getPath(nested)} from file ${nested.filename}`);
             }
             filePromises.push(writeFile(`${options.outDir}/${getPath(nested)}`, fileFormatter.getFullText()));
+            const fileFormatter2 = new TextFormatter();
+            const ClientProxyFile = stripLeadingPeriod(nested.fullName).replace(/\./g, "/") + "Module.ts";
+            // console.log(ClientProxyFile);
+            generateNestClientModuleProxy(fileFormatter2, nested, options);
+            if (options.verbose) {
+                // console.log(nested.fullName);
+                console.log(`Writing ${options.outDir}/${getPath(nested)} from file ${nested.filename}`);
+            }
+            filePromises.push(writeFile(`${options.outDir}/${ClientProxyFile}`, fileFormatter2.getFullText()));
+            const fileFormatter3 = new TextFormatter();
+            generateNestClientModuleServiceProxy(fileFormatter3, nested, options);
+            const proxyfile = stripLeadingPeriod(nested.fullName).replace(/\./g, "/") +
+                "ClientStub.ts";
+            filePromises.push(writeFile(`${options.outDir}/${proxyfile}`, fileFormatter3.getFullText()));
         }
         else if (isNamespaceBase(nested)) {
             filePromises.push(...generateFilesForNamespace(nested, options));
@@ -852,6 +930,7 @@ function writeAllFiles(protoFiles, options) {
         yield fs.promises.mkdir(options.outDir, { recursive: true });
         const basenameMap = new Map();
         for (const filename of protoFiles) {
+            // console.log(protoFiles);
             const basename = path.basename(filename).replace(/\.proto$/, ".ts");
             if (basenameMap.has(basename)) {
                 basenameMap.get(basename).push(filename);
@@ -862,6 +941,7 @@ function writeAllFiles(protoFiles, options) {
         }
         for (const [basename, filenames] of basenameMap.entries()) {
             const loadedRoot = yield (0, util_1.loadProtosWithOptions)(filenames, options);
+            // console.log(loadedRoot);
             writeFilesForRoot(loadedRoot, basename, options);
         }
     });

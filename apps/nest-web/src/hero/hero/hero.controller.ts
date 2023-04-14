@@ -1,40 +1,56 @@
-import { Controller, Get, Inject } from '@nestjs/common';
-import { M1Service } from '@nighttrax/proto/handle/M1Service';
-import { M2Service } from '@nighttrax/proto/handle/M2Service';
+import { Controller, Get, Inject, Logger } from '@nestjs/common';
+import { BookServiceClientStub } from '@nighttrax/proto/interface/mwp/m1/BookServiceClientStub';
+import { HeroesServiceClientStub } from '@nighttrax/proto/interface/mwp/m1/HeroesServiceClientStub';
+import { AccountServiceClientStub } from '@nighttrax/proto/interface/mwp/m2/AccountServiceClientStub';
 
 @Controller('hero')
 export class HeroController {
-  @Inject(M1Service)
-  private readonly m1Service: M1Service;
+  private readonly logger = new Logger('herocontroller');
 
-  @Inject(M2Service)
-  private readonly m2Service: M2Service;
+  @Inject(HeroesServiceClientStub)
+  private readonly heroesServiceClientStub: HeroesServiceClientStub;
 
-  @Get()
-  async findHero() {
-    // const info = await this.heroService.heroesService
-    //   .findOne({
-    //     source: 'heroservice',
-    //     id: 1,
-    //   })
-    //   .toPromise();
-    const info = await this.m1Service.heroesServiceClient
-      .findOne({
-        source: 'herocontroller',
-        id: 1,
-      })
-      .toPromise();
-    return info.hero;
-  }
+  @Inject(BookServiceClientStub)
+  private readonly bookServiceClientStub: BookServiceClientStub;
+
+  @Inject(AccountServiceClientStub)
+  private readonly accountServiceClientStub: AccountServiceClientStub;
+
+  // @Get()
+  // async findHero() {
+  //   const info = await this.heroesServiceClientStub.stub
+  //     .findOne({
+  //       source: 'herocontroller',
+  //       id: 1,
+  //     })
+  //     .toPromise();
+  //   return info.hero;
+  // }
 
   @Get('/getAccount')
   async findAccount() {
-    const info = await this.m2Service.accountServiceClient
+    const heroinfo = await this.heroesServiceClientStub.stub
+      .findOne({
+        source: 'asdf',
+        id: 1,
+      })
+      .toPromise();
+    this.logger.log(heroinfo);
+
+    const info = await this.bookServiceClientStub.stub.FindBook({
+      source: 'asdf',
+      id: 1,
+    });
+
+    const account = await this.accountServiceClientStub.stub
       .FindAccount({
         source: 'hero.controller',
         id: 1,
       })
       .toPromise();
+    this.logger.log('account', account);
+
+    this.logger.log(await info.toPromise());
     return info;
   }
 }

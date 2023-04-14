@@ -12,10 +12,10 @@ import { UsersModule } from './users/users.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TaskService } from './task/task.service';
 import { HeroModule } from './hero/hero.module';
-import { M1Module } from '@nighttrax/proto/handle/M1Module';
-import { M2Module } from '@nighttrax/proto/handle/M2Module';
+import { BookServiceModule } from '@nighttrax/proto/interface/mwp/m1/BookServiceModule';
+import { HeroesServiceModule } from '@nighttrax/proto/interface/mwp/m1/HeroesServiceModule';
+import { AccountServiceModule } from '@nighttrax/proto/interface/mwp/m2/AccountServiceModule';
 
-// @Global()
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -31,8 +31,9 @@ import { M2Module } from '@nighttrax/proto/handle/M2Module';
     }),
     UsersModule,
     HeroModule,
-    M2Module.forRoot(),
-    M1Module.forRoot(),
+    BookServiceModule.forRoot('127.0.0.1:3002'),
+    AccountServiceModule.forRoot('127.0.0.1:3003'),
+    HeroesServiceModule.forRoot('127.0.0.1:3002'),
   ],
   controllers: [AppController],
   providers: [AppService, TaskService],
