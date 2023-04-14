@@ -20,8 +20,6 @@ import {
   CacheTTL,
 } from '@nestjs/cache-manager';
 
-import { PrismaService } from '../../prisma.service';
-
 @Controller('account')
 export class AccountController {
   private readonly logger = new Logger('AccountController');
@@ -32,15 +30,12 @@ export class AccountController {
   @Inject(CACHE_MANAGER)
   private readonly cacheManager: Cache;
 
-  @Inject(PrismaService)
-  private readonly prismaService: PrismaService;
-
   @Get()
   index() {
     return 'index';
   }
 
-  // @UseInterceptors(CacheInterceptor)
+  @UseInterceptors(CacheInterceptor)
   @CacheTTL(10)
   @Get('/info')
   async getInfo(@Query() query: queryDto) {
@@ -70,50 +65,7 @@ export class AccountController {
 
   @Get('/all')
   async all() {
-    const allUsers = await this.prismaService.user.findFirst({
-      where: {
-        id: 2,
-      },
-      select: {
-        id: true,
-        email: true,
-      },
-    });
-
-    return allUsers;
-  }
-
-  @Post('/add')
-  async add(@Body() info: userDto) {
-    const res = await this.prismaService.user.create({
-      data: info,
-    });
-
-    console.log(res);
-    return res;
-  }
-
-  @Post('/update/:id')
-  async update(@Param() param: queryDto, @Body() info: userDto) {
-    const res = await this.prismaService.user.update({
-      data: info,
-      where: {
-        id: param.id,
-      },
-    });
-    console.log(res);
-    return param;
-  }
-
-  @Post('/delete/:id')
-  async del(@Param() param: queryDto) {
-    const res = await this.prismaService.user.delete({
-      where: {
-        id: param.id,
-      },
-    });
-    console.log(res);
-    return param;
+    return {};
   }
 
   @Get('/error2')

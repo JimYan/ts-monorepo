@@ -8,7 +8,6 @@ import { AccountModule } from './account/account.module';
 import { LoggerMiddleware } from './common/middleware/logger/logger.middleware';
 import type { RedisClientOptions } from 'redis';
 import * as redisStore from 'cache-manager-redis-store';
-import { PrismaService } from './prisma.service';
 import { UsersModule } from './users/users.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TaskService } from './task/task.service';
@@ -36,8 +35,8 @@ import { M2Module } from '@nighttrax/proto/handle/M2Module';
     M1Module.forRoot(),
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaService, TaskService],
-  exports: [PrismaService],
+  providers: [AppService, TaskService],
+  exports: [],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {

@@ -75,8 +75,8 @@ export class HeroController {
   @GrpcMethod('HeroesService', 'FindOne')
   // @UseInterceptors(CacheInterceptor) //如果是一个可以写死的key，那么可以用官方的缓存管道。
   // @CacheKey('cachekey') // 自定义key
-  // @UseInterceptors(HeroCacheInterceptor)
-  // @CacheTTL(10) // 缓存时间，单位秒
+  @UseInterceptors(HeroCacheInterceptor)
+  @CacheTTL(10) // 缓存时间，单位秒
   async FindOne(
     data: FindOneReq,
     metadata: Metadata,
