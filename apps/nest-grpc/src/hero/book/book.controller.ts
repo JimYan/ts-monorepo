@@ -36,6 +36,7 @@ export class BookController {
     });
     this.logger.log('bookinfo', info);
 
+    // 自定义错误
     // throw new UserException(100100101, 'Invalid credentials.');
     return {
       code: 1,

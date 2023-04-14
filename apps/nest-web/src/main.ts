@@ -1,11 +1,10 @@
-import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ErrorFilter } from './common/exception/error/error.filter';
 import { AllexceptionFilter } from './common/exception/allexception/allexception.filter';
 import { ValidationPipe } from '@nestjs/common';
 import { TransformInterceptorInterceptor } from './common/interceptor/transform-interceptor/transform-interceptor.interceptor';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -36,17 +35,6 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('api', app, document);
-
-  // 连接rpc服务
-  // app.connectMicroservice<MicroserviceOptions>({
-  //   transport: Transport.GRPC,
-  //   ...m1,
-  // });
-
-  // app.connectMicroservice<MicroserviceOptions>({
-  //   transport: Transport.GRPC,
-  //   ...m2,
-  // });
 
   await app.listen(3001);
 }

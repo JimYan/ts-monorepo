@@ -8,7 +8,6 @@ import { AccountModule } from './account/account.module';
 import { LoggerMiddleware } from './common/middleware/logger/logger.middleware';
 import type { RedisClientOptions } from 'redis';
 import * as redisStore from 'cache-manager-redis-store';
-import { UsersModule } from './users/users.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TaskService } from './task/task.service';
 import { HeroModule } from './hero/hero.module';
@@ -31,7 +30,6 @@ import { M2Module } from '@nighttrax/proto/handle/M2Module';
       password: process.env.redisPassword,
       db: 1,
     }),
-    UsersModule,
     HeroModule,
     M1Module.forRoot('127.0.0.1:3002'),
     M2Module.forRoot('127.0.0.1:3003'),
