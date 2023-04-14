@@ -6,7 +6,6 @@ import { ValidationPipe } from '@nestjs/common';
 import { TransformInterceptorInterceptor } from './common/interceptor/transform-interceptor/transform-interceptor.interceptor';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { m1, m2 } from './common/GrpcRegister';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

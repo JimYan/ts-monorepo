@@ -8,14 +8,18 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var M2Module_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.M2Module = void 0;
+/* eslint-disable */
 const common_1 = require("@nestjs/common");
-const M2Service_1 = require("../handle/M2Service");
+const M2Service_1 = require("./M2Service");
 let M2Module = M2Module_1 = class M2Module {
-    static forRoot() {
+    static forRoot(uri) {
         return {
             global: true,
             module: M2Module_1,
-            providers: [M2Service_1.M2Service],
+            providers: [M2Service_1.M2Service, {
+                    provide: "SERVICE_URI",
+                    useValue: uri,
+                }],
             exports: [M2Service_1.M2Service],
         };
     }

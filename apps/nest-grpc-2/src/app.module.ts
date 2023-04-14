@@ -4,7 +4,6 @@ import type { RedisClientOptions } from 'redis';
 import * as redisStore from 'cache-manager-redis-store';
 import { ConfigModule } from '@nestjs/config';
 import { M1Module } from '@nighttrax/proto/handle/M1Module';
-import { BookServiceModule } from '@nighttrax/proto/interface/mwp/m1/BookServiceModule';
 
 // import { LoggerMiddleware } from './common/middleware/logger/logger.middleware';
 
@@ -24,8 +23,7 @@ import { AccountModule } from './account/account.module';
       password: process.env.redisPassword,
       db: 1,
     }),
-    BookServiceModule.forRoot('127.0.0.1:3002'),
-    M1Module.forRoot(),
+    M1Module.forRoot('127.0.0.1:3002'),
     AccountModule,
   ],
   controllers: [],

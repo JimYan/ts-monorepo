@@ -1,30 +1,36 @@
-import { Injectable, OnModuleInit } from "@nestjs/common";
+/* eslint-disable */
+import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
 import { ClientProxyFactory, Transport } from "@nestjs/microservices";
 import { BookServiceClient } from "../interface/mwp/m1/BookService";
 import { HeroesServiceClient } from "../interface/mwp/m1/HeroesService";
 import { join } from "path";
 
-export const m1 = {
-  options: {
-    package: "mwp.m1",
-    url: "127.0.0.1:3002",
-    protoPath: join(__dirname, "../proto/mwp/m1/mwp_m1_main.proto"),
-  },
-};
-
 @Injectable()
 export class M1Service implements OnModuleInit {
-  public bookServiceClient!: BookServiceClient;
+  public BookServiceStub!: BookServiceClient;
+  public HeroesServiceStub!: HeroesServiceClient;
 
-  public heroesServiceClient!: HeroesServiceClient;
+  @Inject("SERVICE_URI")
+  private readonly url: string | undefined;
 
   onModuleInit() {
-    const client = ClientProxyFactory.create({
+    const BookServiceClient = ClientProxyFactory.create({
       transport: Transport.GRPC,
-      ...m1,
+      options: {
+        package: "mwp.m1",
+        url: this.url,
+        protoPath: join(__dirname, "../proto/mwp/m1/mwp_m1_book.proto"),
+      },
     });
-
-    this.bookServiceClient = client.getService("BookService");
-    this.heroesServiceClient = client.getService("HeroesService");
+    const HeroesServiceClient = ClientProxyFactory.create({
+      transport: Transport.GRPC,
+      options: {
+        package: "mwp.m1",
+        url: this.url,
+        protoPath: join(__dirname, "../proto/mwp/m1/mwp_m1_hero.proto"),
+      },
+    });
+    this.BookServiceStub = BookServiceClient.getService("BookService");
+    this.HeroesServiceStub = HeroesServiceClient.getService("HeroesService");
   }
 }

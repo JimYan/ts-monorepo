@@ -64,6 +64,9 @@ const Protobuf = __importStar(require("protobufjs"));
 const yargs = __importStar(require("yargs"));
 const camelCase = require("lodash.camelcase");
 const util_1 = require("../src/util");
+let packages = {};
+let moduleName = "";
+const serviceList = [];
 const templateStr = "%s";
 const useNameFmter = ({ outputTemplate, inputTemplate }) => {
     if (outputTemplate === inputTemplate) {
@@ -572,65 +575,97 @@ const CLIENT_RESERVED_METHOD_NAMES = new Set([
     "checkOptionalUnaryResponseArguments",
     "checkMetadataAndOptions",
 ]);
-function generateNestClientModuleProxy(formatter, serviceType, options) {
-    formatter.writeLine(`/* eslint-disable @typescript-eslint/no-unused-vars */
+function genNestModuleAndService(packages) {
+    Object.keys(packages).forEach((pgname) => {
+        genNestModule(pgname);
+        const servicelist = packages[pgname];
+        genNestModuleService(pgname, packages[pgname]);
+        // Object.keys(serviceList).forEach((service) => {
+        //   genNestModuleService(pgname, service);
+        // });
+    });
+}
+function genNestModule(packageName) {
+    const m = packageName.split(".").pop();
+    const moduelName = m.charAt(0).toUpperCase() + m.slice(1);
+    const formatter = new TextFormatter();
+    formatter.writeLine(`/* eslint-disable */
 import { DynamicModule, Module } from "@nestjs/common";
-import { ${serviceType.name}ClientStub } from "./${serviceType.name}ClientStub";
+import { ${moduelName}Service } from "./${moduelName}Service";
+
 @Module({
   providers: [],
   controllers: [],
 })
-export class ${serviceType.name}Module {
+export class ${moduelName}Module {
   static forRoot(uri: string): DynamicModule {
     return {
       global: true,
-      module: ${serviceType.name}Module,
-      providers: [${serviceType.name}ClientStub,{
+      module: ${moduelName}Module,
+      providers: [${moduelName}Service,{
           provide: "SERVICE_URI",
           useValue: uri,
-        }],
-      exports: [${serviceType.name}ClientStub],
+      }],
+      exports: [${moduelName}Service],
     };
   }
+}`);
+    console.log(`write file: handle/${moduelName}Service.ts`);
+    writeFile(`handle/${moduelName}Module.ts`, formatter.getFullText());
 }
-`);
-}
-function generateNestClientModuleServiceProxy(formatter, serviceType, options) {
-    // console.log(options);
-    console.log(serviceType);
-    const prefix = "../".repeat(serviceType.filename.split("/").length - 1);
-    console.log(getImportPath(serviceType));
-    const packagePath = getImportPath(serviceType).split("/");
-    packagePath.pop();
-    console.log(packagePath);
+function genNestModuleService(packageName, service) {
+    const m = packageName.split(".").pop();
+    const moduelName = m.charAt(0).toUpperCase() + m.slice(1);
+    const importStr = [];
+    const defineStr = [];
+    const assignStr = [];
+    const pbfile = [];
+    Object.keys(service).forEach((name) => {
+        importStr.push(`import {${name}Client} from "../interface/${packageName.replace(".", "/")}/${name}";`);
+        defineStr.push(`public ${name}Stub!: ${name}Client;`);
+        pbfile.push(`const ${name}Client = ClientProxyFactory.create({
+      transport: Transport.GRPC,
+      options: {
+        package: "${packageName}",
+        url: this.url,
+        protoPath: join(__dirname, "../${service[name]}"),
+      },
+    });`);
+        assignStr.push(`this.${name}Stub = ${name}Client.getService("${name}");`);
+    });
+    const formatter = new TextFormatter();
     formatter.writeLine(`/* eslint-disable */
 import {Inject,Injectable, OnModuleInit } from "@nestjs/common";
 import { ClientProxyFactory, Transport } from "@nestjs/microservices";
-import { ${serviceType.name}Client as clientType } from "./${serviceType.name}";
+${importStr.join("\n")}
 import { join } from "path";
 
-
 @Injectable()
-export class ${serviceType.name}ClientStub implements OnModuleInit {
-  public stub!: clientType;
+export class ${moduelName}Service implements OnModuleInit {
+  ${defineStr.join("\n")}
 
   @Inject("SERVICE_URI")
   private readonly url: string | undefined;
 
   onModuleInit() {
-    const client = ClientProxyFactory.create({
-      transport: Transport.GRPC,
-      options: {
-        package: "${packagePath.join(".")}",
-        url: this.url,
-        protoPath: join(__dirname, "${prefix}${serviceType.filename}"),
-      },
-    });
-
-    this.stub = client.getService("${serviceType.name}");
+    ${pbfile.join("\n")}
+    ${assignStr.join("\n")}
   }
+}`);
+    console.log(`write file: handle/${moduelName}Service.ts`);
+    writeFile(`handle/${moduelName}Service.ts`, formatter.getFullText());
 }
-`);
+function generateNestClientModuleServiceProxy(formatter, serviceType, options) {
+    const prefix = "../".repeat(serviceType.filename.split("/").length - 1);
+    const packagePath = getImportPath(serviceType).split("/");
+    packagePath.pop();
+    const packageName = packagePath.join(".");
+    if (!packages[packageName]) {
+        packages[packageName] = {};
+    }
+    if (!packages[packageName][serviceType.name]) {
+        packages[packageName][serviceType.name] = serviceType.filename;
+    }
 }
 function generateServiceClientInterface(formatter, serviceType, options) {
     const { outputName, inputName } = useNameFmter(options);
@@ -893,20 +928,8 @@ function generateFilesForNamespace(namespace, options) {
                 console.log(`Writing ${options.outDir}/${getPath(nested)} from file ${nested.filename}`);
             }
             filePromises.push(writeFile(`${options.outDir}/${getPath(nested)}`, fileFormatter.getFullText()));
-            const fileFormatter2 = new TextFormatter();
-            const ClientProxyFile = stripLeadingPeriod(nested.fullName).replace(/\./g, "/") + "Module.ts";
-            // console.log(ClientProxyFile);
-            generateNestClientModuleProxy(fileFormatter2, nested, options);
-            if (options.verbose) {
-                // console.log(nested.fullName);
-                console.log(`Writing ${options.outDir}/${getPath(nested)} from file ${nested.filename}`);
-            }
-            filePromises.push(writeFile(`${options.outDir}/${ClientProxyFile}`, fileFormatter2.getFullText()));
             const fileFormatter3 = new TextFormatter();
             generateNestClientModuleServiceProxy(fileFormatter3, nested, options);
-            const proxyfile = stripLeadingPeriod(nested.fullName).replace(/\./g, "/") +
-                "ClientStub.ts";
-            filePromises.push(writeFile(`${options.outDir}/${proxyfile}`, fileFormatter3.getFullText()));
         }
         else if (isNamespaceBase(nested)) {
             filePromises.push(...generateFilesForNamespace(nested, options));
@@ -1043,9 +1066,13 @@ function runScript() {
         }
         (0, util_1.addCommonProtos)();
         writeAllFiles(argv._, Object.assign(Object.assign({}, argv), { alternateCommentMode: true })).then(() => {
+            genNestModuleAndService(packages);
             if (argv.verbose) {
                 console.log("Success");
             }
+            // console.log(packages);
+            // console.log(moduleName);
+            // console.log(serviceList);
         }, (error) => {
             console.error(error);
             process.exit(1);

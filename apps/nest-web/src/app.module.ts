@@ -12,9 +12,11 @@ import { UsersModule } from './users/users.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TaskService } from './task/task.service';
 import { HeroModule } from './hero/hero.module';
-import { BookServiceModule } from '@nighttrax/proto/interface/mwp/m1/BookServiceModule';
-import { HeroesServiceModule } from '@nighttrax/proto/interface/mwp/m1/HeroesServiceModule';
-import { AccountServiceModule } from '@nighttrax/proto/interface/mwp/m2/AccountServiceModule';
+import { M1Module } from '@nighttrax/proto/handle/M1Module';
+import { M2Module } from '@nighttrax/proto/handle/M2Module';
+// import { BookServiceModule } from '@nighttrax/proto/interface/mwp/m1/BookServiceModule';
+// import { HeroesServiceModule } from '@nighttrax/proto/interface/mwp/m1/HeroesServiceModule';
+// import { AccountServiceModule } from '@nighttrax/proto/interface/mwp/m2/AccountServiceModule';
 
 @Module({
   imports: [
@@ -31,9 +33,8 @@ import { AccountServiceModule } from '@nighttrax/proto/interface/mwp/m2/AccountS
     }),
     UsersModule,
     HeroModule,
-    BookServiceModule.forRoot('127.0.0.1:3002'),
-    AccountServiceModule.forRoot('127.0.0.1:3003'),
-    HeroesServiceModule.forRoot('127.0.0.1:3002'),
+    M1Module.forRoot('127.0.0.1:3002'),
+    M2Module.forRoot('127.0.0.1:3003'),
   ],
   controllers: [AppController],
   providers: [AppService, TaskService],

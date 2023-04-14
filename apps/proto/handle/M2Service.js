@@ -5,24 +5,32 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.M2Service = exports.m1 = void 0;
+exports.M2Service = void 0;
+/* eslint-disable */
 const common_1 = require("@nestjs/common");
 const microservices_1 = require("@nestjs/microservices");
 const path_1 = require("path");
-exports.m1 = {
-    options: {
-        package: "mwp.m2",
-        url: "127.0.0.1:3003",
-        protoPath: (0, path_1.join)(__dirname, "../proto/mwp/m2/mwp_m2_account.proto"),
-    },
-};
 let M2Service = class M2Service {
     onModuleInit() {
-        const client = microservices_1.ClientProxyFactory.create(Object.assign({ transport: microservices_1.Transport.GRPC }, exports.m1));
-        this.accountServiceClient = client.getService("AccountService");
+        const AccountServiceClient = microservices_1.ClientProxyFactory.create({
+            transport: microservices_1.Transport.GRPC,
+            options: {
+                package: "mwp.m2",
+                url: this.url,
+                protoPath: (0, path_1.join)(__dirname, "../proto/mwp/m2/mwp_m2_account.proto"),
+            },
+        });
+        this.AccountServiceStub = AccountServiceClient.getService("AccountService");
     }
 };
+__decorate([
+    (0, common_1.Inject)("SERVICE_URI"),
+    __metadata("design:type", Object)
+], M2Service.prototype, "url", void 0);
 M2Service = __decorate([
     (0, common_1.Injectable)()
 ], M2Service);
