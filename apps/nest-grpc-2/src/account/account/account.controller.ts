@@ -25,6 +25,7 @@ import { TimestateInterceptor } from 'src/common/interceptor/timestate/timestate
 import { UserException } from 'src/common/exception/UserException';
 
 import { M1Service } from '@nighttrax/proto/handle/M1Service';
+import { BookServiceClientStub } from '@nighttrax/proto/interface/mwp/m1/BookServiceClientStub';
 // import { HeroCacheInterceptor } from './heroCacheInter';
 
 console.log(CACHE_MANAGER);
@@ -49,6 +50,9 @@ export class AccountController {
   @Inject(M1Service)
   private readonly m1Service: M1Service;
 
+  @Inject(BookServiceClientStub)
+  private readonly BookServiceClientStub: BookServiceClientStub;
+
   @GrpcMethod('AccountService', 'FindAccount')
   @UseInterceptors(CacheInterceptor) //如果是一个可以写死的key，那么可以用官方的缓存管道。
   // @CacheKey('cachekey') // 自定义key
@@ -62,21 +66,27 @@ export class AccountController {
     this.logger.log('请求meta', metadata.toJSON());
     this.logger.log('请求path:', call.getPath());
 
-    const book = await this.m1Service.bookServiceClient
+    // const book = await this.m1Service.bookServiceClient
+    //   .FindBook({
+    //     source: 'nest-grpc-2',
+    //     id: 1,
+    //   })
+    //   .toPromise();
+    const book = await this.BookServiceClientStub.stub
       .FindBook({
-        source: 'nest-grpc-2',
+        source: 'af',
         id: 1,
       })
       .toPromise();
     this.logger.log('bookinfo', book);
 
-    const hero = await this.m1Service.heroesServiceClient
-      .FindOne({
-        source: 'herocontroller',
-        id: 1,
-      })
-      .toPromise();
-    this.logger.log('hero', hero);
+    // const hero = await this.m1Service.heroesServiceClient
+    //   .FindOne({
+    //     source: 'herocontroller',
+    //     id: 1,
+    //   })
+    //   .toPromise();
+    // this.logger.log('hero', hero);
 
     const items: AccountBo[] = [
       {
