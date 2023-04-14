@@ -1,6 +1,0 @@
-syntax = "proto3";
-
-package wp.m1;
-
-import "wp_m1_hero.proto";
-import "wp_m1_book.proto";

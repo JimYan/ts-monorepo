@@ -6,8 +6,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { TransformInterceptorInterceptor } from './common/interceptor/transform-interceptor/transform-interceptor.interceptor';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { join } from 'path';
-import { m1 } from './common/GrpcRegister';
+import { m1, m2 } from './common/GrpcRegister';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -40,26 +39,15 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   // 连接rpc服务
-  app.connectMicroservice<MicroserviceOptions>({
-    transport: Transport.GRPC,
-    ...m1,
-  });
   // app.connectMicroservice<MicroserviceOptions>({
   //   transport: Transport.GRPC,
-  //   options: {
-  //     package: 'hero',
-  //     url: '127.0.0.1:3002',
-  //     protoPath: join(
-  //       __dirname,
-  //       '../node_modules/@nighttrax/proto/proto/wp/m1/wp_m1_main.proto',
-  //     ),
-  //   },
+  //   ...m1,
   // });
 
-  // const list = await app.getMicroservices();
-  // if(list.length>0){
-  //   console.log(list[0].get);
-  // }
+  // app.connectMicroservice<MicroserviceOptions>({
+  //   transport: Transport.GRPC,
+  //   ...m2,
+  // });
 
   await app.listen(3001);
 }

@@ -10,7 +10,6 @@ import {
   Post,
 } from '@nestjs/common';
 import { AccountService } from './account.service';
-import { BookService } from 'src/book/book/book.service';
 import { UserException } from 'src/common/exception/UserException';
 import { queryDto, userDto } from './account.dto';
 import { Cache } from 'cache-manager';
@@ -20,6 +19,7 @@ import {
   CacheKey,
   CacheTTL,
 } from '@nestjs/cache-manager';
+
 import { PrismaService } from '../../prisma.service';
 
 @Controller('account')
@@ -28,9 +28,6 @@ export class AccountController {
 
   @Inject(AccountService)
   private readonly accountService: AccountService;
-
-  @Inject(BookService)
-  private readonly bookService: BookService;
 
   @Inject(CACHE_MANAGER)
   private readonly cacheManager: Cache;
@@ -43,7 +40,7 @@ export class AccountController {
     return 'index';
   }
 
-  @UseInterceptors(CacheInterceptor)
+  // @UseInterceptors(CacheInterceptor)
   @CacheTTL(10)
   @Get('/info')
   async getInfo(@Query() query: queryDto) {
@@ -62,7 +59,6 @@ export class AccountController {
           p2: 2,
         },
       ),
-      book: await this.bookService.getList(),
       time: new Date().toISOString(),
     };
   }

@@ -10,16 +10,20 @@ import {
 import { GrpcMethod } from '@nestjs/microservices';
 import { Metadata, ServerUnaryCall } from '@grpc/grpc-js';
 
-import { FindOneReq } from '@nighttrax/proto/interface/wp/m1/FindOneReq';
-import { FindOneResp } from '@nighttrax/proto/interface/wp/m1/FindOneResp';
+import { FindOneReq } from '@nighttrax/proto/interface/mwp/m1/FindOneReq';
+import { FindOneResp } from '@nighttrax/proto/interface/mwp/m1/FindOneResp';
 
-import { FindManyReq } from '@nighttrax/proto/interface/wp/m1/FindManyReq';
-import { FindManyResp } from '@nighttrax/proto/interface/wp/m1/FindManyResp';
+import { FindManyReq } from '@nighttrax/proto/interface/mwp/m1/FindManyReq';
+import { FindManyResp } from '@nighttrax/proto/interface/mwp/m1/FindManyResp';
 
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import {
+  CACHE_MANAGER,
+  CacheTTL,
+  CacheInterceptor,
+} from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
-import { UsersService } from 'src/users/users.service';
-import { PhotoService } from 'src/photo/photo.service';
+import { UsersService } from 'src/dao/users/users.service';
+import { PhotoService } from 'src/dao/photo/photo.service';
 import { AllExceptionsFilter } from 'src/common/exception/allexception/allexception.filter';
 import { TimestateInterceptor } from 'src/common/interceptor/timestate/timestate.interceptor';
 import { UserException } from 'src/common/exception/UserException';
@@ -86,7 +90,7 @@ export class HeroController {
     ];
     const resp = items.find(({ id }) => id === data.id);
 
-    await this.cacheManager.set('grpckey', 'value', {
+    await this.cacheManager.set('grpckey', 'valuev2', {
       ttl: 500000,
     });
 

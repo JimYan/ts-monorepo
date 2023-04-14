@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+package mwp.m1;
+
+import "mwp_m1_hero.proto";
+import "mwp_m1_book.proto";

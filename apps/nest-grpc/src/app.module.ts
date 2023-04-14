@@ -1,27 +1,24 @@
 import { Global, MiddlewareConsumer, Module } from '@nestjs/common';
-import { AppController } from './app.controller';
 import { CacheModule } from '@nestjs/cache-manager';
 import type { RedisClientOptions } from 'redis';
 import * as redisStore from 'cache-manager-redis-store';
 import { ConfigModule } from '@nestjs/config';
 
-// import { AppService } from './app.service';
 // import { LoggerMiddleware } from './common/middleware/logger/logger.middleware';
 
-// import { PrismaService } from './prisma.service';
-// import { ScheduleModule } from '@nestjs/schedule';
-// import { TaskService } from './task/task.service';
+import { ScheduleModule } from '@nestjs/schedule';
 import { HeroModule } from './hero/hero.module';
-import { UsersModule } from './users/users.module';
-import { PhotoModule } from './photo/photo.module';
+import { UsersModule } from './dao/users/users.module';
+import { PhotoModule } from './dao/photo/photo.module';
+import { AppService } from './app/app.service';
 
 @Global()
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    // ScheduleModule.forRoot(),
+    ScheduleModule.forRoot(),
     CacheModule.register<RedisClientOptions>({
-      isGlobal: true,
+      // isGlobal: true,
       store: redisStore,
       host: process.env.redisHost,
       port: process.env.redisPort,
@@ -33,7 +30,7 @@ import { PhotoModule } from './photo/photo.module';
     PhotoModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [AppService],
   exports: [],
 })
 export class AppModule {

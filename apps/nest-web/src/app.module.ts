@@ -4,9 +4,6 @@ import { ConfigModule } from '@nestjs/config';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { CatsController } from './cats/cats.controller';
-import { CatsService } from './cats/cats.service';
-import { BookModule } from './book/book.module';
 import { AccountModule } from './account/account.module';
 import { LoggerMiddleware } from './common/middleware/logger/logger.middleware';
 import type { RedisClientOptions } from 'redis';
@@ -16,13 +13,14 @@ import { UsersModule } from './users/users.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TaskService } from './task/task.service';
 import { HeroModule } from './hero/hero.module';
+import { M1Module } from '@nighttrax/proto/handle/M1Module';
+import { M2Module } from '@nighttrax/proto/handle/M2Module';
 
-@Global()
+// @Global()
 @Module({
   imports: [
     ConfigModule.forRoot(),
     ScheduleModule.forRoot(),
-    BookModule,
     AccountModule,
     CacheModule.register<RedisClientOptions>({
       // isGlobal: true,
@@ -34,9 +32,11 @@ import { HeroModule } from './hero/hero.module';
     }),
     UsersModule,
     HeroModule,
+    M2Module.forRoot(),
+    M1Module.forRoot(),
   ],
-  controllers: [AppController, CatsController],
-  providers: [AppService, CatsService, PrismaService, TaskService],
+  controllers: [AppController],
+  providers: [AppService, PrismaService, TaskService],
   exports: [PrismaService],
 })
 export class AppModule {

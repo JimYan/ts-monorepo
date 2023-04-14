@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package mwp.m1;
+
+service BookService {
+  rpc FindBook (FindBookReq) returns (FindBookResp) {}
+}
+
+message BookBo {
+  int32 id = 1;
+  string title = 2;
+  string author = 3;
+}
+
+message FindBookReq {
+  required string source = 1;
+  required int32 id = 2;
+}
+
+message FindBookResp {
+  required int32 code = 1;
+  required string msg = 2;
+  repeated BookBo list = 3;
+}

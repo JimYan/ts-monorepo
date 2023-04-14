@@ -10,31 +10,32 @@ import { Cache } from 'cache-manager';
 
 @Controller()
 export class AppController {
+  // @Inject(CACHE_MANAGER) private cacheManager: Cache;
+
   constructor(
-    private readonly appService: AppService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private readonly appService: AppService, // @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   @Get('/ccache')
   @CacheKey('setkey')
   @CacheTTL(5000)
-  @UseInterceptors(CacheInterceptor)
+  // @UseInterceptors(CacheInterceptor)
   testCacheController() {
     return { time: new Date().toISOString() };
   }
 
   @Get()
   async getHello() {
-    await this.cacheManager.set('keyasdf', 'valueasdf', { ttl: 5000 });
+    // await this.cacheManager.set('keyasdf', 'valueasdf', { ttl: 5000 });
     return this.appService.getHello();
   }
 
   @Get('/cache')
   async getCache() {
-    const cacheData = await this.cacheManager.get('keyasdf');
-    console.log(cacheData);
-
-    await this.appService.setCache('k2', 'v2', 100);
-    return { cacheData };
+    return 'cache';
+    // const cacheData = await this.cacheManager.get('keyasdf');
+    // console.log(cacheData);
+    // await this.appService.setCache('k2', 'v2', 100);
+    // return { cacheData };
   }
 }
