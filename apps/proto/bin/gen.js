@@ -629,6 +629,7 @@ function genNestModuleService(packageName, service) {
         package: "${packageName}",
         url: this.url,
         protoPath: join(__dirname, "../${service[name]}"),
+        ...extra
       },
     });`);
         assignStr.push(`this.${name}Stub = ${name}Client.getService("${name}");`);
@@ -637,6 +638,7 @@ function genNestModuleService(packageName, service) {
     formatter.writeLine(`/* eslint-disable */
 import {Inject,Injectable, OnModuleInit } from "@nestjs/common";
 import { ClientProxyFactory, Transport } from "@nestjs/microservices";
+import * as grpc from '@grpc/grpc-js';
 ${importStr.join("\n")}
 import { join } from "path";
 
@@ -648,6 +650,10 @@ export class ${moduelName}Service implements OnModuleInit {
   private readonly url: string | undefined;
 
   onModuleInit() {
+    let extra: any = {}
+    if(this.url && /:443$/.test(this.url)){
+      extra.credentials = grpc.credentials.createSsl()
+    }
     ${pbfile.join("\n")}
     ${assignStr.join("\n")}
   }

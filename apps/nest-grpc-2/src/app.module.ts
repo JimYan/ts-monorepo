@@ -23,7 +23,12 @@ import { AccountModule } from './account/account.module';
       password: process.env.redisPassword,
       db: 1,
     }),
-    M1Module.forRoot('127.0.0.1:3002'),
+    M1Module.forRoot(
+      process.env.NODE_ENV == 'prod'
+        ? 'mwp-rpc-ghri5ivvvq-df.a.run.app:443'
+        : // : 'mwp-rpc-ghri5ivvvq-df.a.run.app:443',
+          '127.0.0.1:3002',
+    ),
     AccountModule,
   ],
   controllers: [],
