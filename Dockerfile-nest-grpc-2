@@ -8,8 +8,6 @@ COPY . .
 RUN pwd
 RUN ls
 RUN pnpm install
-RUN pnpm -F nest-grpc-starter-2 prisma:photo
-RUN pnpm -F nest-grpc-starter-2 prisma:schema
 RUN pnpm -F nest-grpc-starter-2 build
 
 CMD ["pnpm", "-F", "nest-grpc-starter-2", "start:prod"]
