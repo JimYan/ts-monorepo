@@ -1,14 +1,14 @@
 /* eslint-disable */
-import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
+import {Inject,Injectable, OnModuleInit } from "@nestjs/common";
 import { ClientProxyFactory, Transport } from "@nestjs/microservices";
-import { BookServiceClient } from "../interface/mwp/m1/BookService";
-import { HeroesServiceClient } from "../interface/mwp/m1/HeroesService";
+import {BookServiceClient} from "../interface/mwp/m1/BookService";
+import {HeroesServiceClient} from "../interface/mwp/m1/HeroesService";
 import { join } from "path";
 
 @Injectable()
 export class M1Service implements OnModuleInit {
   public BookServiceStub!: BookServiceClient;
-  public HeroesServiceStub!: HeroesServiceClient;
+public HeroesServiceStub!: HeroesServiceClient;
 
   @Inject("SERVICE_URI")
   private readonly url: string | undefined;
@@ -22,7 +22,7 @@ export class M1Service implements OnModuleInit {
         protoPath: join(__dirname, "../proto/mwp/m1/mwp_m1_book.proto"),
       },
     });
-    const HeroesServiceClient = ClientProxyFactory.create({
+const HeroesServiceClient = ClientProxyFactory.create({
       transport: Transport.GRPC,
       options: {
         package: "mwp.m1",
@@ -31,6 +31,6 @@ export class M1Service implements OnModuleInit {
       },
     });
     this.BookServiceStub = BookServiceClient.getService("BookService");
-    this.HeroesServiceStub = HeroesServiceClient.getService("HeroesService");
+this.HeroesServiceStub = HeroesServiceClient.getService("HeroesService");
   }
 }

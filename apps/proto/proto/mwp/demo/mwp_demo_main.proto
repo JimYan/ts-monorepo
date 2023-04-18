@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package mwp.demo;
+
+service DemoService {
+  rpc FindAccount (FindAccountReq) returns (FindAccountResp) {}
+}
+
+message AccountBo {
+  int32 id = 1;
+  string username = 2;
+  string nickname = 3;
+  string address = 4;
+  string photo = 5;
+}
+
+message FindAccountReq {
+  required string source = 1;
+  required int32 id = 2;
+}
+
+message FindAccountResp {
+  required int32 code = 1;
+  required string msg = 2;
+  AccountBo list = 3;
+}

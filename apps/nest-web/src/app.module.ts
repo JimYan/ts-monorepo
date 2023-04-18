@@ -13,9 +13,6 @@ import { TaskService } from './task/task.service';
 import { HeroModule } from './hero/hero.module';
 import { M1Module } from '@nighttrax/proto/handle/M1Module';
 import { M2Module } from '@nighttrax/proto/handle/M2Module';
-// import { BookServiceModule } from '@nighttrax/proto/interface/mwp/m1/BookServiceModule';
-// import { HeroesServiceModule } from '@nighttrax/proto/interface/mwp/m1/HeroesServiceModule';
-// import { AccountServiceModule } from '@nighttrax/proto/interface/mwp/m2/AccountServiceModule';
 
 @Module({
   imports: [
