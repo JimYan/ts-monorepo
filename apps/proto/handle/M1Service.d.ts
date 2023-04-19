@@ -5,5 +5,5 @@ export declare class M1Service implements OnModuleInit {
     BookServiceStub: BookServiceClient;
     HeroesServiceStub: HeroesServiceClient;
     private readonly url;
-    onModuleInit(): void;
+    onModuleInit(): Promise<void>;
 }

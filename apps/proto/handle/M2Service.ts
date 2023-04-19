@@ -1,6 +1,7 @@
 /* eslint-disable */
 import {Inject,Injectable, OnModuleInit } from "@nestjs/common";
 import { ClientProxyFactory, Transport } from "@nestjs/microservices";
+import {getServiceByPGname} from "../src/service";
 import * as grpc from '@grpc/grpc-js';
 import {AccountServiceClient} from "../interface/mwp/m2/AccountService";
 import { join } from "path";
@@ -12,16 +13,20 @@ export class M2Service implements OnModuleInit {
   @Inject("SERVICE_URI")
   private readonly url: string | undefined;
 
-  onModuleInit() {
+  async onModuleInit() {
     let extra: any = {}
-    if(this.url && /:443$/.test(this.url)){
+    const url: string | undefined = this.url ? this.url : await getServiceByPGname("mwp.m2");
+    if(!url){
+      throw new Error("get service:mwp.m2 rpc url is null");
+    }
+    if(url && /:443$/.test(url)){
       extra.credentials = grpc.credentials.createSsl()
     }
     const AccountServiceClient = ClientProxyFactory.create({
       transport: Transport.GRPC,
       options: {
         package: "mwp.m2",
-        url: this.url,
+        url: url,
         protoPath: join(__dirname, "../proto/mwp/m2/mwp_m2_account.proto"),
         ...extra
       },

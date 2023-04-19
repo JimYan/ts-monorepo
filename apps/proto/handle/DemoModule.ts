@@ -7,7 +7,7 @@ import { DemoService } from "./DemoService";
   controllers: [],
 })
 export class DemoModule {
-  static forRoot(uri: string): DynamicModule {
+  static forRoot(uri=''): DynamicModule {
     return {
       global: true,
       module: DemoModule,

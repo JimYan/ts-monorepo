@@ -12,7 +12,7 @@ exports.DemoModule = void 0;
 const common_1 = require("@nestjs/common");
 const DemoService_1 = require("./DemoService");
 let DemoModule = DemoModule_1 = class DemoModule {
-    static forRoot(uri) {
+    static forRoot(uri = '') {
         return {
             global: true,
             module: DemoModule_1,

@@ -31,24 +31,40 @@ var __importStar = (this && this.__importStar) || function (mod) {
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DemoService = void 0;
 /* eslint-disable */
 const common_1 = require("@nestjs/common");
 const microservices_1 = require("@nestjs/microservices");
+const service_1 = require("../src/service");
 const grpc = __importStar(require("@grpc/grpc-js"));
 const path_1 = require("path");
 let DemoService = class DemoService {
     onModuleInit() {
-        let extra = {};
-        if (this.url && /:443$/.test(this.url)) {
-            extra.credentials = grpc.credentials.createSsl();
-        }
-        const DemoServiceClient = microservices_1.ClientProxyFactory.create({
-            transport: microservices_1.Transport.GRPC,
-            options: Object.assign({ package: "mwp.demo", url: this.url, protoPath: (0, path_1.join)(__dirname, "../proto/mwp/demo/mwp_demo_main.proto") }, extra),
+        return __awaiter(this, void 0, void 0, function* () {
+            let extra = {};
+            const url = this.url ? this.url : yield (0, service_1.getServiceByPGname)("mwp.demo");
+            if (!url) {
+                throw new Error("get service:mwp.demo rpc url is null");
+            }
+            if (url && /:443$/.test(url)) {
+                extra.credentials = grpc.credentials.createSsl();
+            }
+            const DemoServiceClient = microservices_1.ClientProxyFactory.create({
+                transport: microservices_1.Transport.GRPC,
+                options: Object.assign({ package: "mwp.demo", url: url, protoPath: (0, path_1.join)(__dirname, "../proto/mwp/demo/mwp_demo_main.proto") }, extra),
+            });
+            this.DemoServiceStub = DemoServiceClient.getService("DemoService");
         });
-        this.DemoServiceStub = DemoServiceClient.getService("DemoService");
     }
 };
 __decorate([

@@ -1,6 +1,7 @@
 /* eslint-disable */
 import {Inject,Injectable, OnModuleInit } from "@nestjs/common";
 import { ClientProxyFactory, Transport } from "@nestjs/microservices";
+import {getServiceByPGname} from "../src/service";
 import * as grpc from '@grpc/grpc-js';
 import {BookServiceClient} from "../interface/mwp/m1/BookService";
 import {HeroesServiceClient} from "../interface/mwp/m1/HeroesService";
@@ -14,16 +15,20 @@ public HeroesServiceStub!: HeroesServiceClient;
   @Inject("SERVICE_URI")
   private readonly url: string | undefined;
 
-  onModuleInit() {
+  async onModuleInit() {
     let extra: any = {}
-    if(this.url && /:443$/.test(this.url)){
+    const url: string | undefined = this.url ? this.url : await getServiceByPGname("mwp.m1");
+    if(!url){
+      throw new Error("get service:mwp.m1 rpc url is null");
+    }
+    if(url && /:443$/.test(url)){
       extra.credentials = grpc.credentials.createSsl()
     }
     const BookServiceClient = ClientProxyFactory.create({
       transport: Transport.GRPC,
       options: {
         package: "mwp.m1",
-        url: this.url,
+        url: url,
         protoPath: join(__dirname, "../proto/mwp/m1/mwp_m1_book.proto"),
         ...extra
       },
@@ -32,7 +37,7 @@ const HeroesServiceClient = ClientProxyFactory.create({
       transport: Transport.GRPC,
       options: {
         package: "mwp.m1",
-        url: this.url,
+        url: url,
         protoPath: join(__dirname, "../proto/mwp/m1/mwp_m1_hero.proto"),
         ...extra
       },

@@ -12,7 +12,7 @@ exports.M1Module = void 0;
 const common_1 = require("@nestjs/common");
 const M1Service_1 = require("./M1Service");
 let M1Module = M1Module_1 = class M1Module {
-    static forRoot(uri) {
+    static forRoot(uri = '') {
         return {
             global: true,
             module: M1Module_1,

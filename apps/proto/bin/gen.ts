@@ -707,7 +707,7 @@ import { ${moduelName}Service } from "./${moduelName}Service";
   controllers: [],
 })
 export class ${moduelName}Module {
-  static forRoot(uri: string): DynamicModule {
+  static forRoot(uri=''): DynamicModule {
     return {
       global: true,
       module: ${moduelName}Module,
@@ -747,7 +747,7 @@ function genNestModuleService(
       transport: Transport.GRPC,
       options: {
         package: "${packageName}",
-        url: this.url,
+        url: url,
         protoPath: join(__dirname, "../${service[name]}"),
         ...extra
       },
@@ -759,6 +759,7 @@ function genNestModuleService(
   formatter.writeLine(`/* eslint-disable */
 import {Inject,Injectable, OnModuleInit } from "@nestjs/common";
 import { ClientProxyFactory, Transport } from "@nestjs/microservices";
+import {getServiceByPGname} from "../src/service";
 import * as grpc from '@grpc/grpc-js';
 ${importStr.join("\n")}
 import { join } from "path";
@@ -770,9 +771,13 @@ export class ${moduelName}Service implements OnModuleInit {
   @Inject("SERVICE_URI")
   private readonly url: string | undefined;
 
-  onModuleInit() {
+  async onModuleInit() {
     let extra: any = {}
-    if(this.url && /:443$/.test(this.url)){
+    const url: string | undefined = this.url ? this.url : await getServiceByPGname("${packageName}");
+    if(!url){
+      throw new Error("get service:${packageName} rpc url is null");
+    }
+    if(url && /:443$/.test(url)){
       extra.credentials = grpc.credentials.createSsl()
     }
     ${pbfile.join("\n")}

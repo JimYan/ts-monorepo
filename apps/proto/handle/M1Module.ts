@@ -7,7 +7,7 @@ import { M1Service } from "./M1Service";
   controllers: [],
 })
 export class M1Module {
-  static forRoot(uri: string): DynamicModule {
+  static forRoot(uri=''): DynamicModule {
     return {
       global: true,
       module: M1Module,
