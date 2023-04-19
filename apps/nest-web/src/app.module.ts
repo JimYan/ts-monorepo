@@ -34,8 +34,7 @@ import { M2Module } from '@nighttrax/proto/handle/M2Module';
         : // : 'mwp-rpc-ghri5ivvvq-df.a.run.app:443',
           '127.0.0.1:3002',
     ),
-    M2Module.forRoot('127.0.0.1:3003'),
-    M1Module.forRoot(
+    M2Module.forRoot(
       process.env.NODE_ENV == 'prod'
         ? 'mwp-grpc-2-ghri5ivvvq-df.a.run.app:443'
         : // : 'mwp-rpc-ghri5ivvvq-df.a.run.app:443',
