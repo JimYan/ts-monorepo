@@ -28,18 +28,20 @@ import { M2Module } from '@nighttrax/proto/handle/M2Module';
       db: 1,
     }),
     HeroModule,
-    M1Module.forRoot(
-      process.env.NODE_ENV == 'prod'
-        ? 'mwp-rpc-ghri5ivvvq-df.a.run.app:443'
-        : // : 'mwp-rpc-ghri5ivvvq-df.a.run.app:443',
-          '127.0.0.1:3002',
-    ),
-    M2Module.forRoot(
-      process.env.NODE_ENV == 'prod'
-        ? 'mwp-grpc-2-ghri5ivvvq-df.a.run.app:443'
-        : // : 'mwp-rpc-ghri5ivvvq-df.a.run.app:443',
-          '127.0.0.1:3003',
-    ),
+    M1Module
+      .forRoot
+      // process.env.NODE_ENV == 'prod'
+      //   ? 'mwp-rpc-ghri5ivvvq-df.a.run.app:443'
+      //   : // : 'mwp-rpc-ghri5ivvvq-df.a.run.app:443',
+      //     '127.0.0.1:3002',
+      (),
+    M2Module
+      .forRoot
+      // process.env.NODE_ENV == 'prod'
+      //   ? 'mwp-grpc-2-ghri5ivvvq-df.a.run.app:443'
+      //   : // : 'mwp-rpc-ghri5ivvvq-df.a.run.app:443',
+      //     '127.0.0.1:3003',
+      (),
   ],
   controllers: [AppController],
   providers: [AppService, TaskService],
