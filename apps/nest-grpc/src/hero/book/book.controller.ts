@@ -14,6 +14,7 @@ import { UserException } from 'src/common/exception/UserException';
 import { TimestateInterceptor } from 'src/common/interceptor/timestate/timestate.interceptor';
 
 import { PhotoPrismaService } from 'src/dao/photo/photo-prisma/photo-prisma.service';
+import { FeedserviceService } from 'src/dao/feed/feedservice/feedservice.service';
 
 @UseFilters(new AllExceptionsFilter()) // handle所有的错误.
 @UseInterceptors(new TimestateInterceptor()) // 每个service的执行时间。
@@ -23,6 +24,9 @@ export class BookController {
 
   @Inject(PhotoPrismaService)
   private readonly photoPrismaService: PhotoPrismaService;
+
+  @Inject(FeedserviceService)
+  private readonly FeedserviceService: FeedserviceService;
 
   @GrpcMethod('BookService', 'FindBook')
   async FindBook(data: FindBookReq, metadata: Metadata): Promise<FindBookResp> {
@@ -35,6 +39,13 @@ export class BookController {
       },
     });
     this.logger.log('bookinfo', info);
+
+    const feed = await this.FeedserviceService.feeds.findMany({
+      where: {
+        title: '从入门到放弃',
+      },
+    });
+    this.logger.log('feed', feed);
 
     // 自定义错误
     // throw new UserException(100100101, 'Invalid credentials.');

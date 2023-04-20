@@ -11,6 +11,7 @@ import { HeroModule } from './hero/hero.module';
 import { UsersModule } from './dao/users/users.module';
 import { PhotoModule } from './dao/photo/photo.module';
 import { AppService } from './app/app.service';
+import { FeedModule } from './dao/feed/feed.module';
 
 @Global()
 @Module({
@@ -28,6 +29,7 @@ import { AppService } from './app/app.service';
     HeroModule,
     UsersModule,
     PhotoModule,
+    FeedModule,
   ],
   controllers: [],
   providers: [AppService],
