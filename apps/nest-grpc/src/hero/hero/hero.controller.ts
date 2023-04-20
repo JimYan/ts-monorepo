@@ -20,6 +20,7 @@ import {
   CACHE_MANAGER,
   CacheTTL,
   CacheInterceptor,
+  CacheKey,
 } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { UsersService } from 'src/dao/users/users.service';
@@ -73,9 +74,9 @@ export class HeroController {
   }
 
   @GrpcMethod('HeroesService', 'FindOne')
-  // @UseInterceptors(CacheInterceptor) //如果是一个可以写死的key，那么可以用官方的缓存管道。
-  // @CacheKey('cachekey') // 自定义key
-  @UseInterceptors(HeroCacheInterceptor)
+  @UseInterceptors(CacheInterceptor) //如果是一个可以写死的key，那么可以用官方的缓存管道。
+  @CacheKey('cachekey') // 自定义key
+  // @UseInterceptors(HeroCacheInterceptor)
   @CacheTTL(10) // 缓存时间，单位秒
   async FindOne(
     data: FindOneReq,
