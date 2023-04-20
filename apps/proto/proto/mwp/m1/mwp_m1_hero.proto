@@ -13,24 +13,24 @@ message HeroBo {
 }
 
 message FindOneReq {
-  required string source = 1;
-  required int32 id = 2;
+  string source = 1;
+  int32 id = 2;
 }
 
 message FindOneResp {
-  required int32 code = 1;
-  required string msg = 2;
+  int32 code = 1;
+  string msg = 2;
   optional HeroBo hero = 3;
 }
 
 message FindManyReq {
-  required string source = 1;
-  required int32 id = 2;
+  string source = 1;
+  int32 id = 2;
 }
 
 message FindManyResp {
-  required int32 code = 1;
-  required string msg = 2;
+  int32 code = 1;
+  string msg = 2;
   repeated HeroBo list = 3;
 }
 
