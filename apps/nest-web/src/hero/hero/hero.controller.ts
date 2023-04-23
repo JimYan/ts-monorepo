@@ -1,8 +1,11 @@
-import { Controller, Get, Inject, Logger } from '@nestjs/common';
+import { Controller, Get, Inject, Logger, Query } from '@nestjs/common';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { M1Service } from '@nighttrax/proto/handle/M1Service';
 import { M2Service } from '@nighttrax/proto/handle/M2Service';
+import { FindHeroDto } from './hero.dto';
 
 @Controller('hero')
+@ApiTags('hero')
 export class HeroController {
   private readonly logger = new Logger('herocontroller');
 
@@ -13,7 +16,9 @@ export class HeroController {
   private readonly M2Service: M2Service;
 
   @Get()
-  async findHero() {
+  // @ApiQuery({ type: FindHeroDto })
+  async findHero(@Query() x: FindHeroDto) {
+    console.log(x);
     const info = await this.M1Service.HeroesServiceStub.findOne({
       source: 'herocontrollerXXX',
       id: 2,

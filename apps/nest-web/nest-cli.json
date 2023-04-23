@@ -5,12 +5,16 @@
   "compilerOptions": {
     "assets": ["**/*.proto"],
     "watchAssets": true,
+    "watchOptions": {
+      "excludeFiles": ["./api.ts"]
+    },
     "deleteOutDir": true,
     "plugins": [
       {
         "name": "@nestjs/swagger",
         "options": {
-          "introspectComments": true
+          "introspectComments": true,
+          "classValidatorShim": true
         }
       }
     ]

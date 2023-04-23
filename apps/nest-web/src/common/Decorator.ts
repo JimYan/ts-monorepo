@@ -1,6 +1,23 @@
-import { HttpException } from '@nestjs/common';
+import { applyDecorators, HttpException, Type } from '@nestjs/common';
+import {
+  ApiExtraModels,
+  ApiOkResponse,
+  ApiProperty,
+  getSchemaPath,
+} from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { Validator } from 'class-validator';
+// import { baseResponseDto } from './base.dto';
+
+export class baseResponseDto<TData> {
+  @ApiProperty()
+  code: number;
+  @ApiProperty()
+  message: string;
+  @ApiProperty()
+  tid: string;
+  data: TData;
+}
 
 export function ValidateArgs() {
   return function (
@@ -43,3 +60,21 @@ export function ValidateArgs() {
     return descriptor;
   };
 }
+
+export const ApiBaseResponse = <TModel extends Type<any>>(model: TModel) => {
+  return applyDecorators(
+    ApiExtraModels(model),
+    ApiOkResponse({
+      schema: {
+        allOf: [
+          { $ref: getSchemaPath(baseResponseDto) },
+          {
+            properties: {
+              data: { $ref: getSchemaPath(model) },
+            },
+          },
+        ],
+      },
+    }),
+  );
+};

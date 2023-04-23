@@ -4,7 +4,7 @@ import { ErrorFilter } from './common/exception/error/error.filter';
 import { AllexceptionFilter } from './common/exception/allexception/allexception.filter';
 import { ValidationPipe } from '@nestjs/common';
 import { TransformInterceptorInterceptor } from './common/interceptor/transform-interceptor/transform-interceptor.interceptor';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { swaggerInit } from './swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -23,18 +23,14 @@ async function bootstrap() {
     }),
   );
 
+  app.enableCors();
+
   // 包装全局返回内容
   app.useGlobalInterceptors(new TransformInterceptorInterceptor());
 
-  // swagger初始化
-  const options = new DocumentBuilder()
-    .setTitle('Cats example')
-    .setDescription('The cats API description')
-    .setVersion('1.0')
-    .addTag('cats')
-    .build();
-  const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('api', app, document);
+  if (process.env.NODE_ENV === 'dev') {
+    swaggerInit(app);
+  }
 
   await app.listen(3001);
 }

@@ -6,6 +6,10 @@ export class queryDto {
   id: number;
 }
 
+export class queryAccountDto {
+  name: string;
+}
+
 export class userDto {
   @IsNotEmpty()
   @IsEmail()
@@ -13,4 +17,19 @@ export class userDto {
 
   @IsNotEmpty()
   name: string;
+}
+
+export class helloDataDto {
+  // @ApiProperty()
+  id: number;
+  // @ApiProperty()
+  name: string;
+  // @ApiProperty()
+  s: string;
+
+  // @ApiProperty()
+  user: userDto;
+
+  // @ApiProperty()
+  x: string;
 }

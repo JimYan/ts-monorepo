@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import {
   Controller,
   Get,
@@ -11,7 +12,13 @@ import {
 } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { UserException } from 'src/common/exception/UserException';
-import { queryDto, userDto } from './account.dto';
+import { ApiBaseResponse } from 'src/common/Decorator';
+import {
+  queryDto,
+  userDto,
+  helloDataDto,
+  queryAccountDto,
+} from './account.dto';
 import { Cache } from 'cache-manager';
 import {
   CACHE_MANAGER,
@@ -19,8 +26,10 @@ import {
   CacheKey,
   CacheTTL,
 } from '@nestjs/cache-manager';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('account')
+@ApiTags('Account')
 export class AccountController {
   private readonly logger = new Logger('AccountController');
 
@@ -31,14 +40,19 @@ export class AccountController {
   private readonly cacheManager: Cache;
 
   @Get()
-  index() {
+  @ApiBaseResponse(helloDataDto)
+  index2(@Query() query: queryAccountDto) {
+    console.log(query);
     return 'index';
   }
 
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(10)
   @Get('/info')
-  async getInfo(@Query() query: queryDto) {
+  async getInfo(@Query() query: queryDto): Promise<{
+    account: any;
+    time: string;
+  }> {
     this.logger.debug('info...');
     this.logger.log('info...');
     this.logger.warn('info...');
