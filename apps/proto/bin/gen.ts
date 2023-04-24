@@ -34,6 +34,13 @@ import * as yargs from "yargs";
 import camelCase = require("lodash.camelcase");
 import { loadProtosWithOptions, addCommonProtos } from "../src/util";
 
+type IPackages = { [key: string]: { [key: string]: string } };
+let packages: IPackages = {};
+let moduleName = "";
+const serviceList: string[] = [];
+
+const isDtoReg = /Dto(\s\|\snull)?$/;
+
 const templateStr = "%s";
 const useNameFmter = ({ outputTemplate, inputTemplate }: GeneratorOptions) => {
   if (outputTemplate === inputTemplate) {
@@ -56,6 +63,7 @@ type GeneratorOptions = Protobuf.IParseOptions &
     outputTemplate: string;
     inputBranded: boolean;
     outputBranded: boolean;
+    isDto: boolean;
   };
 
 class TextFormatter {
@@ -189,6 +197,52 @@ function getImportLine(
     }
   }
   return `import type { ${importedTypes} } from '${filePath}';`;
+}
+
+function getImportClassLine(
+  dependency: Protobuf.Type | Protobuf.Enum | Protobuf.Service,
+  from: Protobuf.Type | Protobuf.Service | undefined,
+  options: GeneratorOptions
+) {
+  const filePath =
+    from === undefined
+      ? "./" + getImportPath(dependency)
+      : getRelativeImportPath(from, dependency);
+  const { outputName, inputName } = useNameFmter(options);
+  const typeInterfaceName = getTypeInterfaceName(dependency);
+  let importedTypes: string;
+  /* If the dependency is defined within a message, it will be generated in that
+   * message's file and exported using its typeInterfaceName. */
+  if (dependency.parent instanceof Protobuf.Type) {
+    if (
+      dependency instanceof Protobuf.Type ||
+      dependency instanceof Protobuf.Enum
+    ) {
+      importedTypes = `${inputName(typeInterfaceName)}, ${outputName(
+        typeInterfaceName
+      )}`;
+    } else if (dependency instanceof Protobuf.Service) {
+      importedTypes = `${typeInterfaceName}Client, ${typeInterfaceName}Definition`;
+    } else {
+      throw new Error("Invalid object passed to getImportLine");
+    }
+  } else {
+    if (
+      dependency instanceof Protobuf.Type ||
+      dependency instanceof Protobuf.Enum
+    ) {
+      importedTypes = `${inputName(dependency.name)}Dto as ${inputName(
+        typeInterfaceName
+      )}Dto,${outputName(dependency.name)}Dto as ${outputName(
+        typeInterfaceName
+      )}Dto`;
+    } else if (dependency instanceof Protobuf.Service) {
+      importedTypes = `${dependency.name}Client as ${typeInterfaceName}Client, ${dependency.name}Definition as ${typeInterfaceName}Definition`;
+    } else {
+      throw new Error("Invalid object passed to getImportLine");
+    }
+  }
+  return `import { ${importedTypes} } from '${filePath}';`;
 }
 
 function getChildMessagesAndEnums(
@@ -325,6 +379,7 @@ function generatePermissiveMessageInterface(
   formatter.writeLine(
     `export interface ${inputName(nameOverride ?? messageType.name)} {`
   );
+
   formatter.indent();
   for (const field of messageType.fieldsArray) {
     const repeatedString = field.repeated ? "[]" : "";
@@ -355,7 +410,8 @@ function getTypeNameRestricted(
   resolvedType: Protobuf.Type | Protobuf.Enum | null,
   repeated: boolean,
   map: boolean,
-  options: GeneratorOptions
+  options: GeneratorOptions,
+  isDto = false
 ): string {
   const { outputName } = useNameFmter(options);
   switch (fieldType) {
@@ -405,27 +461,29 @@ function getTypeNameRestricted(
         /* null is only used to represent absent message values if the defaults
          * option is set, and only for non-repeated, non-map fields. */
         if (options.defaults && !repeated && !map) {
-          return `${outputName(typeInterfaceName)} | null`;
+          return `${outputName(typeInterfaceName)}${isDto ? "Dto" : ""} | null`;
         } else {
-          return `${outputName(typeInterfaceName)}`;
+          return `${outputName(typeInterfaceName)}${isDto ? "Dto" : ""}`;
         }
       } else {
         // Enum
-        return outputName(typeInterfaceName);
+        return outputName(typeInterfaceName) + isDto ? "Dto" : "";
       }
   }
 }
 
 function getFieldTypeRestricted(
   field: Protobuf.FieldBase,
-  options: GeneratorOptions
+  options: GeneratorOptions,
+  isDto = false
 ): string {
   const valueType = getTypeNameRestricted(
     field.type,
     field.resolvedType,
     field.repeated,
     field.map,
-    options
+    options,
+    isDto
   );
   if (field instanceof Protobuf.MapField) {
     const keyType = field.keyType === "string" ? "string" : "number";
@@ -466,6 +524,7 @@ function generateRestrictedMessageInterface(
   formatter.writeLine(
     `export interface ${outputName(nameOverride ?? messageType.name)} {`
   );
+  formatter.writeLine(`/*test*/`);
   formatter.indent();
   for (const field of messageType.fieldsArray) {
     let fieldGuaranteed: boolean;
@@ -507,6 +566,194 @@ function generateRestrictedMessageInterface(
   formatter.writeLine("}");
 }
 
+function generateDtoMessageInterface(
+  formatter: TextFormatter,
+  messageType: Protobuf.Type,
+  options: GeneratorOptions,
+  nameOverride?: string
+) {
+  const { outputName } = useNameFmter(options);
+  if (options.includeComments) {
+    formatComment(formatter, messageType.comment, messageType.options);
+  }
+  if (messageType.fullName === ".google.protobuf.Any" && options.json) {
+    /* This describes the behavior of the Protobuf.js Any wrapper toObject
+     * replacement function */
+    let optionalString = options.defaults ? "" : "?";
+    formatter.writeLine(`export type ${outputName("Any")} = AnyExtension | {`);
+    formatter.writeLine(`  type_url${optionalString}: string;`);
+    formatter.writeLine(
+      `  value${optionalString}: ${getTypeNameRestricted(
+        "bytes",
+        null,
+        false,
+        false,
+        options
+      )};`
+    );
+    formatter.writeLine("}");
+    return;
+  }
+  formatter.writeLine(`export class ${messageType.name}Dto {`);
+  // formatter.writeLine(`/*dto*/`);
+  formatter.indent();
+  for (const field of messageType.fieldsArray) {
+    let fieldGuaranteed: boolean;
+    if (field.partOf) {
+      // The field is not guaranteed populated if it is part of a oneof
+      fieldGuaranteed = false;
+    } else if (field.repeated) {
+      fieldGuaranteed = (options.defaults || options.arrays) ?? false;
+    } else if (field.map) {
+      fieldGuaranteed = (options.defaults || options.objects) ?? false;
+    } else {
+      fieldGuaranteed = options.defaults ?? false;
+    }
+    const optionalString = fieldGuaranteed ? "" : "?";
+    const repeatedString = field.repeated ? "[]" : "";
+    const type = getFieldTypeRestricted(field, options, true);
+    if (options.includeComments) {
+      formatComment(formatter, field.comment, field.options);
+    }
+
+    // console.log(type);
+    if (field.repeated) {
+      formatter.writeLine(
+        `@ApiProperty({type: [${type.replace(/\s\|\snull$/, "")}]})`
+      );
+    } else if (isDtoReg.test(type)) {
+      formatter.writeLine(
+        `@ApiProperty({type: ()=>${type.replace(/\s\|\snull$/, "")}})`
+      );
+    } else {
+      formatter.writeLine(`@ApiProperty()`);
+    }
+
+    formatter.writeLine(
+      `'${field.name}'${optionalString}: (${type})${repeatedString};`
+    );
+  }
+  if (options.oneofs) {
+    for (const oneof of messageType.oneofsArray) {
+      const typeString = oneof.fieldsArray
+        .map((field) => `"${field.name}"`)
+        .join("|");
+      if (options.includeComments) {
+        formatComment(formatter, oneof.comment, oneof.options);
+      }
+
+      if (isDtoReg.test(typeString)) {
+        formatter.writeLine(
+          `@ApiProperty({type: ()=>${typeString.replace(/\s|\snull$/, "")}})`
+        );
+      } else {
+        formatter.writeLine(`@ApiProperty()`);
+      }
+
+      // formatter.writeLine(`@ApiProperty({ type: () => ${typeString} })`);
+      //@ApiProperty({ type: () => _mwp_m1_HeroBo__OutputDto })
+      formatter.writeLine(`'${oneof.name}': ${typeString};`);
+    }
+  }
+  if (options.outputBranded) {
+    formatTypeBrand(formatter, messageType);
+  }
+  formatter.unindent();
+  formatter.writeLine("}");
+}
+
+function generateDtoRestrictedMessageInterface(
+  formatter: TextFormatter,
+  messageType: Protobuf.Type,
+  options: GeneratorOptions,
+  nameOverride?: string
+) {
+  const { outputName } = useNameFmter(options);
+  if (options.includeComments) {
+    formatComment(formatter, messageType.comment, messageType.options);
+  }
+  if (messageType.fullName === ".google.protobuf.Any" && options.json) {
+    /* This describes the behavior of the Protobuf.js Any wrapper toObject
+     * replacement function */
+    let optionalString = options.defaults ? "" : "?";
+    formatter.writeLine(`export type ${outputName("Any")} = AnyExtension | {`);
+    formatter.writeLine(`  type_url${optionalString}: string;`);
+    formatter.writeLine(
+      `  value${optionalString}: ${getTypeNameRestricted(
+        "bytes",
+        null,
+        false,
+        false,
+        options
+      )};`
+    );
+    formatter.writeLine("}");
+    return;
+  }
+  formatter.writeLine(
+    `export class ${outputName(nameOverride ?? messageType.name)}Dto {`
+  );
+  // formatter.writeLine(`/*dto*/`);
+  formatter.indent();
+  for (const field of messageType.fieldsArray) {
+    let fieldGuaranteed: boolean;
+    if (field.partOf) {
+      // The field is not guaranteed populated if it is part of a oneof
+      fieldGuaranteed = false;
+    } else if (field.repeated) {
+      fieldGuaranteed = (options.defaults || options.arrays) ?? false;
+    } else if (field.map) {
+      fieldGuaranteed = (options.defaults || options.objects) ?? false;
+    } else {
+      fieldGuaranteed = options.defaults ?? false;
+    }
+    const optionalString = fieldGuaranteed ? "" : "?";
+    const repeatedString = field.repeated ? "[]" : "";
+    const type = getFieldTypeRestricted(field, options, true);
+    if (options.includeComments) {
+      formatComment(formatter, field.comment, field.options);
+    }
+    // formatter.writeLine(`@ApiProperty()`);
+    if (field.repeated) {
+      formatter.writeLine(
+        `@ApiProperty({type: [${type.replace(/\s\|\snull$/, "")}]})`
+      );
+    } else if (isDtoReg.test(type)) {
+      formatter.writeLine(
+        `@ApiProperty({type: ()=>${type.replace(/\s\|\snull$/, "")}})`
+      );
+    } else {
+      formatter.writeLine(`@ApiProperty()`);
+    }
+    formatter.writeLine(
+      `'${field.name}'${optionalString}: (${type})${repeatedString};`
+    );
+  }
+  if (options.oneofs) {
+    for (const oneof of messageType.oneofsArray) {
+      const typeString = oneof.fieldsArray
+        .map((field) => `"${field.name}"`)
+        .join("|");
+      if (options.includeComments) {
+        formatComment(formatter, oneof.comment, oneof.options);
+      }
+      if (isDtoReg.test(typeString)) {
+        formatter.writeLine(
+          `@ApiProperty({type: ()=>${typeString.replace(/\s\|\snull$/, "")}})`
+        );
+      } else {
+        formatter.writeLine(`@ApiProperty()`);
+      }
+      // formatter.writeLine(`@ApiProperty()`);
+      formatter.writeLine(`'${oneof.name}': ${typeString};`);
+    }
+  }
+  if (options.outputBranded) {
+    formatTypeBrand(formatter, messageType);
+  }
+  formatter.unindent();
+  formatter.writeLine("}");
+}
 function generateMessageInterfaces(
   formatter: TextFormatter,
   messageType: Protobuf.Type,
@@ -518,6 +765,8 @@ function generateMessageInterfaces(
   formatter.writeLine(
     `// Original file: ${(messageType.filename ?? "null")?.replace(/\\/g, "/")}`
   );
+  formatter.writeLine("/* eslint-disable */");
+  formatter.writeLine(`import {ApiProperty} from '@nestjs/swagger';`);
   formatter.writeLine("");
   const isLongField = (field: Protobuf.Field) =>
     ["int64", "uint64", "sint64", "fixed64", "sfixed64"].includes(field.type);
@@ -530,6 +779,7 @@ function generateMessageInterfaces(
       }
       seenDeps.add(dependency.fullName);
       formatter.writeLine(getImportLine(dependency, messageType, options));
+      formatter.writeLine(getImportClassLine(dependency, messageType, options));
     }
     if (isLongField(field)) {
       usesLong = true;
@@ -577,6 +827,14 @@ function generateMessageInterfaces(
         options,
         nameOverride
       );
+      generateDtoMessageInterface(formatter, childType, options, nameOverride);
+      formatter.writeLine("");
+      generateDtoRestrictedMessageInterface(
+        formatter,
+        childType,
+        options,
+        nameOverride
+      );
     } else {
       generateEnumInterface(formatter, childType, options, nameOverride);
     }
@@ -586,6 +844,10 @@ function generateMessageInterfaces(
   generatePermissiveMessageInterface(formatter, messageType, options);
   formatter.writeLine("");
   generateRestrictedMessageInterface(formatter, messageType, options);
+  formatter.writeLine("");
+  formatter.writeLine("");
+  generateDtoMessageInterface(formatter, messageType, options);
+  generateDtoRestrictedMessageInterface(formatter, messageType, options);
 }
 
 function generateEnumInterface(
@@ -599,6 +861,7 @@ function generateEnumInterface(
   formatter.writeLine(
     `// Original file: ${(enumType.filename ?? "null")?.replace(/\\/g, "/")}`
   );
+  formatter.writeLine("/* eslint-disable */");
   formatter.writeLine("");
   if (options.includeComments) {
     formatComment(formatter, enumType.comment, enumType.options);
@@ -677,6 +940,130 @@ const CLIENT_RESERVED_METHOD_NAMES = new Set([
   "checkOptionalUnaryResponseArguments",
   "checkMetadataAndOptions",
 ]);
+
+function genNestModuleAndService(packages: IPackages) {
+  Object.keys(packages).forEach((pgname) => {
+    genNestModule(pgname);
+    const servicelist = packages[pgname];
+    genNestModuleService(pgname, packages[pgname]);
+    // Object.keys(serviceList).forEach((service) => {
+    //   genNestModuleService(pgname, service);
+    // });
+  });
+}
+
+function genNestModule(packageName: string) {
+  const m = packageName.split(".").pop() as string;
+  const moduelName = m.charAt(0).toUpperCase() + m.slice(1);
+  const formatter = new TextFormatter();
+  formatter.writeLine(`/* eslint-disable */
+import { DynamicModule, Module } from "@nestjs/common";
+import { ${moduelName}Service } from "./${moduelName}Service";
+
+@Module({
+  providers: [],
+  controllers: [],
+})
+export class ${moduelName}Module {
+  static forRoot(uri=''): DynamicModule {
+    return {
+      global: true,
+      module: ${moduelName}Module,
+      providers: [${moduelName}Service,{
+          provide: "SERVICE_URI",
+          useValue: uri,
+      }],
+      exports: [${moduelName}Service],
+    };
+  }
+}`);
+  console.log(`write file: handle/${moduelName}Service.ts`);
+  writeFile(`handle/${moduelName}Module.ts`, formatter.getFullText());
+}
+
+function genNestModuleService(
+  packageName: string,
+  service: { [key: string]: string }
+) {
+  const m = packageName.split(".").pop() as string;
+  const moduelName = m.charAt(0).toUpperCase() + m.slice(1);
+
+  const importStr: string[] = [];
+  const defineStr: string[] = [];
+  const assignStr: string[] = [];
+  const pbfile: string[] = [];
+
+  Object.keys(service).forEach((name) => {
+    importStr.push(
+      `import {${name}Client} from "../interface/${packageName.replace(
+        ".",
+        "/"
+      )}/${name}";`
+    );
+    defineStr.push(`public ${name}Stub!: ${name}Client;`);
+    pbfile.push(`const ${name}Client = ClientProxyFactory.create({
+      transport: Transport.GRPC,
+      options: {
+        package: "${packageName}",
+        url: url,
+        protoPath: join(__dirname, "../${service[name]}"),
+        ...extra
+      },
+    });`);
+    assignStr.push(`this.${name}Stub = ${name}Client.getService("${name}");`);
+  });
+
+  const formatter = new TextFormatter();
+  formatter.writeLine(`/* eslint-disable */
+import {Inject,Injectable, OnModuleInit } from "@nestjs/common";
+import { ClientProxyFactory, Transport } from "@nestjs/microservices";
+import {getServiceByPGname} from "../src/service";
+import * as grpc from '@grpc/grpc-js';
+${importStr.join("\n")}
+import { join } from "path";
+
+@Injectable()
+export class ${moduelName}Service implements OnModuleInit {
+  ${defineStr.join("\n")}
+
+  @Inject("SERVICE_URI")
+  private readonly url: string | undefined;
+
+  async onModuleInit() {
+    let extra: any = {}
+    const url: string | undefined = this.url ? this.url : await getServiceByPGname("${packageName}");
+    if(!url){
+      throw new Error("get service:${packageName} rpc url is null");
+    }
+    if(url && /:443$/.test(url)){
+      extra.credentials = grpc.credentials.createSsl()
+    }
+    ${pbfile.join("\n")}
+    ${assignStr.join("\n")}
+  }
+}`);
+  console.log(`write file: handle/${moduelName}Service.ts`);
+  writeFile(`handle/${moduelName}Service.ts`, formatter.getFullText());
+}
+
+function generateNestClientModuleServiceProxy(
+  formatter: TextFormatter,
+  serviceType: Protobuf.Service,
+  options: GeneratorOptions
+) {
+  const prefix = "../".repeat(
+    (serviceType.filename as string).split("/").length - 1
+  );
+  const packagePath = getImportPath(serviceType).split("/");
+  packagePath.pop();
+  const packageName = packagePath.join(".");
+  if (!packages[packageName]) {
+    packages[packageName] = {};
+  }
+  if (!packages[packageName][serviceType.name]) {
+    packages[packageName][serviceType.name] = serviceType.filename as string;
+  }
+}
 
 function generateServiceClientInterface(
   formatter: TextFormatter,
@@ -760,7 +1147,7 @@ function generateServiceClientInterface(
           );
           // (data: req, meta?: Metadata) => Observable<resp>
           formatter.writeLine(
-            `${name}(argument: ${requestType}, metadata?: Metadata) : Observable<${responseType}>;`
+            `${name}(argument: ${requestType}Dto, metadata?: Metadata) : Observable<${responseType}Dto>;`
           );
           // formatter.writeLine(
           //   `${name} : ICallFunction<${requestType},${responseType}>;`
@@ -882,8 +1269,11 @@ function generateServiceInterfaces(
     dependencies.add(method.resolvedRequestType!);
     dependencies.add(method.resolvedResponseType!);
   }
+
   for (const dep of Array.from(dependencies.values()).sort(compareName)) {
+    // console.log(dep, serviceType); // genflag
     formatter.writeLine(getImportLine(dep, serviceType, options));
+    formatter.writeLine(getImportClassLine(dep, serviceType, options));
   }
   formatter.writeLine("");
 
@@ -1025,6 +1415,7 @@ function generateRootFile(
 
 async function writeFile(filename: string, contents: string): Promise<void> {
   await fs.promises.mkdir(path.dirname(filename), { recursive: true });
+  // console.log(filename);
   return fs.promises.writeFile(filename, contents);
 }
 
@@ -1036,6 +1427,7 @@ function generateFilesForNamespace(
   for (const nested of namespace.nestedArray) {
     const fileFormatter = new TextFormatter();
     if (nested instanceof Protobuf.Type) {
+      // console.log("1");
       generateMessageInterfaces(fileFormatter, nested, options);
       if (options.verbose) {
         console.log(
@@ -1051,6 +1443,7 @@ function generateFilesForNamespace(
         )
       );
     } else if (nested instanceof Protobuf.Enum) {
+      // console.log("2");
       generateEnumInterface(fileFormatter, nested, options);
       if (options.verbose) {
         console.log(
@@ -1066,6 +1459,7 @@ function generateFilesForNamespace(
         )
       );
     } else if (nested instanceof Protobuf.Service) {
+      // console.log("3", nested);
       generateServiceInterfaces(fileFormatter, nested, options);
       if (options.verbose) {
         console.log(
@@ -1080,6 +1474,9 @@ function generateFilesForNamespace(
           fileFormatter.getFullText()
         )
       );
+
+      const fileFormatter3 = new TextFormatter();
+      generateNestClientModuleServiceProxy(fileFormatter3, nested, options);
     } else if (isNamespaceBase(nested)) {
       filePromises.push(...generateFilesForNamespace(nested, options));
     }
@@ -1115,6 +1512,7 @@ async function writeAllFiles(protoFiles: string[], options: GeneratorOptions) {
   await fs.promises.mkdir(options.outDir, { recursive: true });
   const basenameMap = new Map<string, string[]>();
   for (const filename of protoFiles) {
+    // console.log(protoFiles);
     const basename = path.basename(filename).replace(/\.proto$/, ".ts");
     if (basenameMap.has(basename)) {
       basenameMap.get(basename)!.push(filename);
@@ -1125,6 +1523,7 @@ async function writeAllFiles(protoFiles: string[], options: GeneratorOptions) {
 
   for (const [basename, filenames] of basenameMap.entries()) {
     const loadedRoot = await loadProtosWithOptions(filenames, options);
+    // console.log(loadedRoot);
     writeFilesForRoot(loadedRoot, basename, options);
   }
 }
@@ -1239,9 +1638,13 @@ async function runScript() {
     alternateCommentMode: true,
   }).then(
     () => {
+      genNestModuleAndService(packages);
       if ((argv as unknown as any).verbose) {
         console.log("Success");
       }
+      // console.log(packages);
+      // console.log(moduleName);
+      // console.log(serviceList);
     },
     (error) => {
       console.error(error);

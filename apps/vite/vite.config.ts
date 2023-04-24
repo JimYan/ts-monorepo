@@ -5,4 +5,12 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
   plugins: [react(), tsconfigPaths()],
+  optimizeDeps: {
+    include: ["@nighttrax/foo", "@nighttrax/lib", "node_modules"],
+  },
+  build: {
+    commonjsOptions: {
+      include: [/@nighttrax\/lib/, /node_modules/],
+    },
+  },
 });

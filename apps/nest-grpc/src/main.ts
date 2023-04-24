@@ -10,10 +10,10 @@ async function bootstrap() {
       transport: Transport.GRPC,
       options: {
         url: '0.0.0.0:3002',
-        package: 'wp.m1',
+        package: 'mwp.m1',
         protoPath: join(
           __dirname,
-          '../node_modules/@nighttrax/proto/proto/wp/m1/wp_m1_main.proto',
+          '../node_modules/@nighttrax/proto/proto/mwp/m1/mwp_m1_main.proto',
         ),
       },
     },
@@ -21,6 +21,6 @@ async function bootstrap() {
 
   // await app.startAllMicroservices();
   await app.listen();
-  console.log(`Application is running on: `);
+  console.log(`Application is running on: 0.0.0.0:3002`);
 }
 bootstrap();

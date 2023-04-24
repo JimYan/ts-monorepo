@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package mwp.m1;
+
+service HeroesService {
+  rpc FindOne (FindOneReq) returns (FindOneResp) {}
+  rpc FindMany (FindManyReq) returns (FindManyResp) {}
+}
+
+message ExtroBo {
+  string nickname = 1;
+  string sex = 2;
+  bool status = 3;
+  int64 time = 4; 
+}
+
+message HeroBo {
+  int32 id = 1;
+  string name = 2;
+  ExtroBo extro = 3;
+}
+
+message FindOneReq {
+  string source = 1;
+  int32 id = 2;
+}
+
+message FindOneResp {
+  int32 code = 1;
+  string msg = 2;
+  HeroBo hero = 3;
+}
+
+message FindManyReq {
+  string source = 1;
+  int32 id = 2;
+}
+
+message FindManyResp {
+  int32 code = 1;
+  string msg = 2;
+  repeated HeroBo list = 3;
+}
+

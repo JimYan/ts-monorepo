@@ -4,7 +4,7 @@
 import { useState } from "react";
 import { QueryFunctionContext, useQuery } from "@tanstack/react-query";
 import type { SetOptional } from "type-fest";
-import { IResp, query, post } from "@nighttrax/lib";
+import { IResp, query, post } from "../libs/query";
 
 export type ICommentItem = {
   id: number;

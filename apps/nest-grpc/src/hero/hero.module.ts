@@ -1,12 +1,29 @@
 import { Module } from '@nestjs/common';
 import { HeroController } from './hero/hero.controller';
-import { UsersModule } from 'src/users/users.module';
-import { PhotoModule } from 'src/photo/photo.module';
+import { UsersModule } from 'src/dao/users/users.module';
+import { PhotoModule } from 'src/dao/photo/photo.module';
 import { BookController } from './book/book.controller';
+import { TaskService } from './task/task.service';
+import { CacheModule } from '@nestjs/cache-manager';
+import type { RedisClientOptions } from 'redis';
+import * as redisStore from 'cache-manager-redis-store';
+import { FeedModule } from 'src/dao/feed/feed.module';
 
 @Module({
-  imports: [UsersModule, PhotoModule],
+  imports: [
+    UsersModule,
+    PhotoModule,
+    FeedModule,
+    CacheModule.register<RedisClientOptions>({
+      // isGlobal: true,
+      store: redisStore,
+      host: process.env.redisHost,
+      port: process.env.redisPort,
+      password: process.env.redisPassword,
+      db: 0,
+    }),
+  ],
   controllers: [HeroController, BookController],
-  providers: [],
+  providers: [TaskService],
 })
 export class HeroModule {}

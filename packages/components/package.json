@@ -1,6 +1,7 @@
 {
   "name": "@nighttrax/components",
   "version": "1.0.0",
+  "main": "dist/index",
   "scripts": {
     "build": "pnpm run clean && pnpm run compile",
     "clean": "rimraf ./dist",

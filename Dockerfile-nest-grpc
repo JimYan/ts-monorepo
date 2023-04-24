@@ -1,0 +1,16 @@
+FROM bomarconi/pnpm:node-lts-0.4
+
+
+WORKDIR /srv
+
+COPY . .
+
+RUN pwd
+RUN ls
+RUN pnpm install
+RUN pnpm -F nest-grpc-starter prisma:photo
+RUN pnpm -F nest-grpc-starter prisma:schema
+RUN pnpm -F nest-grpc-starter prisma:feed
+RUN pnpm -F nest-grpc-starter build
+
+CMD ["pnpm", "-F", "nest-grpc-starter", "start:prod"]

@@ -1,0 +1,13 @@
+FROM bomarconi/pnpm:node-lts-0.4
+
+
+WORKDIR /srv
+
+COPY . .
+
+RUN pwd
+RUN ls
+RUN pnpm install
+RUN pnpm -F nest-typescript-starter build
+
+CMD ["pnpm", "-F", "nest-typescript-starter", "start:prod"]
