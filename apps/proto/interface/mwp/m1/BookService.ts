@@ -8,19 +8,21 @@ import { Metadata } from '@grpc/grpc-js';
 type ICallFunction<req, resp> = (data: req, meta?: Metadata) => Observable<resp>;
 
 import type { FindBookReq as _mwp_m1_FindBookReq, FindBookReq__Output as _mwp_m1_FindBookReq__Output } from '../../mwp/m1/FindBookReq';
+import { FindBookReqDto as _mwp_m1_FindBookReqDto,FindBookReq__OutputDto as _mwp_m1_FindBookReq__OutputDto } from '../../mwp/m1/FindBookReq';
 import type { FindBookResp as _mwp_m1_FindBookResp, FindBookResp__Output as _mwp_m1_FindBookResp__Output } from '../../mwp/m1/FindBookResp';
+import { FindBookRespDto as _mwp_m1_FindBookRespDto,FindBookResp__OutputDto as _mwp_m1_FindBookResp__OutputDto } from '../../mwp/m1/FindBookResp';
 
 export interface BookServiceClient extends grpc.Client {
   FindBook(argument: _mwp_m1_FindBookReq, metadata: grpc.Metadata, options: grpc.CallOptions, callback: grpc.requestCallback<_mwp_m1_FindBookResp__Output>): grpc.ClientUnaryCall;
   FindBook(argument: _mwp_m1_FindBookReq, metadata: grpc.Metadata, callback: grpc.requestCallback<_mwp_m1_FindBookResp__Output>): grpc.ClientUnaryCall;
   FindBook(argument: _mwp_m1_FindBookReq, options: grpc.CallOptions, callback: grpc.requestCallback<_mwp_m1_FindBookResp__Output>): grpc.ClientUnaryCall;
   FindBook(argument: _mwp_m1_FindBookReq, callback: grpc.requestCallback<_mwp_m1_FindBookResp__Output>): grpc.ClientUnaryCall;
-  FindBook(argument: _mwp_m1_FindBookReq, metadata?: Metadata) : Observable<_mwp_m1_FindBookResp__Output>;
+  FindBook(argument: _mwp_m1_FindBookReqDto, metadata?: Metadata) : Observable<_mwp_m1_FindBookResp__OutputDto>;
   findBook(argument: _mwp_m1_FindBookReq, metadata: grpc.Metadata, options: grpc.CallOptions, callback: grpc.requestCallback<_mwp_m1_FindBookResp__Output>): grpc.ClientUnaryCall;
   findBook(argument: _mwp_m1_FindBookReq, metadata: grpc.Metadata, callback: grpc.requestCallback<_mwp_m1_FindBookResp__Output>): grpc.ClientUnaryCall;
   findBook(argument: _mwp_m1_FindBookReq, options: grpc.CallOptions, callback: grpc.requestCallback<_mwp_m1_FindBookResp__Output>): grpc.ClientUnaryCall;
   findBook(argument: _mwp_m1_FindBookReq, callback: grpc.requestCallback<_mwp_m1_FindBookResp__Output>): grpc.ClientUnaryCall;
-  findBook(argument: _mwp_m1_FindBookReq, metadata?: Metadata) : Observable<_mwp_m1_FindBookResp__Output>;
+  findBook(argument: _mwp_m1_FindBookReqDto, metadata?: Metadata) : Observable<_mwp_m1_FindBookResp__OutputDto>;
   
 }
 

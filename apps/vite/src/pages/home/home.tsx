@@ -32,6 +32,12 @@ const App = () => {
     { id: 3 }
   );
 
+  const { data: hero } = useQueryApi(Api.hero.findHero, ["hero", "findhero"], {
+    age: 2,
+    id: 2,
+    name: "jim",
+  });
+
   // const {data,isLoading} = useQuery({queryKey:["asdf"],queryFn:Api.account.allAccount})
   const {
     data: mdata,
@@ -69,6 +75,8 @@ const App = () => {
             加载
           </button>
         </p>
+
+        <p>hero:{hero?.data?.hero.name}</p>
       </div>
       <h1>Vite + React</h1>
       <div className="card">

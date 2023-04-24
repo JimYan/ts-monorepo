@@ -2,7 +2,11 @@ import { Controller, Get, Inject, Logger, Query } from '@nestjs/common';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import { M1Service } from '@nighttrax/proto/handle/M1Service';
 import { M2Service } from '@nighttrax/proto/handle/M2Service';
+import { ApiResponse } from 'src/common/Decorator';
 import { FindHeroDto } from './hero.dto';
+import { FindOneRespDto } from '@nighttrax/proto/interface/mwp/m1/FindOneResp';
+import { FindManyRespDto } from '@nighttrax/proto/interface/mwp/m1/FindManyResp';
+// import { HeroBoDto } from '@nighttrax/proto/interface/mwp/m1/HeroBo';
 
 @Controller('hero')
 @ApiTags('hero')
@@ -17,35 +21,38 @@ export class HeroController {
 
   @Get()
   // @ApiQuery({ type: FindHeroDto })
+  @ApiResponse('class', FindOneRespDto)
   async findHero(@Query() x: FindHeroDto) {
     console.log(x);
     const info = await this.M1Service.HeroesServiceStub.findOne({
       source: 'herocontrollerXXX',
       id: 2,
     }).toPromise();
-    return info.hero;
+    this.logger.log('xxy', info);
+    return info;
   }
 
   @Get('/getAccount')
+  @ApiResponse('class', FindManyRespDto)
   async findAccount() {
-    const heroinfo = await this.M1Service.HeroesServiceStub.findOne({
+    const heroinfo = await this.M1Service.HeroesServiceStub.FindMany({
       source: 'asdf',
       id: 1,
     }).toPromise();
-    this.logger.log(heroinfo);
+    // this.logger.log(heroinfo.hero.id);
 
     const info = await this.M1Service.BookServiceStub.FindBook({
       source: 'asdf',
       id: 1,
     });
 
-    const account = await this.M2Service.AccountServiceStub.FindAccount({
-      source: 'hero.controller',
-      id: 1,
-    }).toPromise();
-    this.logger.log('account', account);
+    // const account = await this.M2Service.AccountServiceStub.FindAccount({
+    //   source: 'hero.controller',
+    //   id: 1,
+    // }).toPromise();
+    // this.logger.log('account', account);
 
-    this.logger.log(await info.toPromise());
-    return info;
+    // this.logger.log(await info.toPromise());
+    return heroinfo;
   }
 }

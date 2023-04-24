@@ -7,9 +7,17 @@ service HeroesService {
   rpc FindMany (FindManyReq) returns (FindManyResp) {}
 }
 
+message ExtroBo {
+  string nickname = 1;
+  string sex = 2;
+  bool status = 3;
+  int64 time = 4; 
+}
+
 message HeroBo {
   int32 id = 1;
   string name = 2;
+  ExtroBo extro = 3;
 }
 
 message FindOneReq {
@@ -20,7 +28,7 @@ message FindOneReq {
 message FindOneResp {
   int32 code = 1;
   string msg = 2;
-  optional HeroBo hero = 3;
+  HeroBo hero = 3;
 }
 
 message FindManyReq {

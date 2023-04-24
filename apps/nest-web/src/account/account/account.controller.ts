@@ -20,6 +20,7 @@ import {
   queryAccountDto,
   AllAccountDto,
 } from './account.dto';
+import { BookBoDto } from '@nighttrax/proto/interface/mwp/m1/BookBo';
 import { Cache } from 'cache-manager';
 import {
   CACHE_MANAGER,
@@ -41,10 +42,10 @@ export class AccountController {
   private readonly cacheManager: Cache;
 
   @Get()
-  @ApiResponse('string')
+  @ApiResponse('class', BookBoDto)
   index2(@Query() query: queryAccountDto) {
     console.log(query);
-    return 'index';
+    return 'indess';
   }
 
   @UseInterceptors(CacheInterceptor)

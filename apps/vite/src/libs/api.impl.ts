@@ -1,4 +1,10 @@
 /* eslint-disable */
+export interface BookBoDto {
+  id: number;
+  title: string;
+  author: string;
+}
+
 export interface UserDto {
   email: string;
   name: string;
@@ -17,6 +23,31 @@ export interface AllAccountDto {
 
 export interface QueryAccountDto {
   name: string;
+}
+
+export interface ExtroBoOutputDto {
+  nickname: string;
+  sex: string;
+  status: boolean;
+  time: string;
+}
+
+export interface HeroBoOutputDto {
+  id: number;
+  name: string;
+  extro: ExtroBoOutputDto;
+}
+
+export interface FindOneRespDto {
+  code: number;
+  msg: string;
+  hero: HeroBoOutputDto;
+}
+
+export interface FindManyRespDto {
+  code: number;
+  msg: string;
+  list: HeroBoOutputDto[];
 }
 
 export interface BaseResponseDto {
@@ -65,7 +96,7 @@ export namespace Account {
  * @name Index2
  * @request GET:/account
  * @response `200` `(BaseResponseDto & {
-    data?: string,
+    data?: BookBoDto,
 
 })`
 */
@@ -77,7 +108,7 @@ export namespace Account {
     export type RequestBody = never;
     export type RequestHeaders = {};
     export type ResponseBody = BaseResponseDto & {
-      data?: string;
+      data?: BookBoDto;
     };
   } /**
  * No description
@@ -194,12 +225,15 @@ export namespace Account {
 
 export namespace Hero {
   /**
-   * No description
-   * @tags hero
-   * @name FindHero
-   * @request GET:/hero
-   * @response `200` `object`
-   */
+ * No description
+ * @tags hero
+ * @name FindHero
+ * @request GET:/hero
+ * @response `200` `(BaseResponseDto & {
+    data?: FindOneRespDto,
+
+})`
+*/
   export namespace FindHero {
     export type RequestParams = {};
     export type RequestQuery = {
@@ -209,21 +243,27 @@ export namespace Hero {
     };
     export type RequestBody = never;
     export type RequestHeaders = {};
-    export type ResponseBody = object;
-  }
-  /**
-   * No description
-   * @tags hero
-   * @name FindAccount
-   * @request GET:/hero/getAccount
-   * @response `200` `object`
-   */
+    export type ResponseBody = BaseResponseDto & {
+      data?: FindOneRespDto;
+    };
+  } /**
+ * No description
+ * @tags hero
+ * @name FindAccount
+ * @request GET:/hero/getAccount
+ * @response `200` `(BaseResponseDto & {
+    data?: FindManyRespDto,
+
+})`
+*/
   export namespace FindAccount {
     export type RequestParams = {};
     export type RequestQuery = {};
     export type RequestBody = never;
     export type RequestHeaders = {};
-    export type ResponseBody = object;
+    export type ResponseBody = BaseResponseDto & {
+      data?: FindManyRespDto;
+    };
   }
 }
 
@@ -497,7 +537,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
  * @name Index2
  * @request GET:/account
  * @response `200` `(BaseResponseDto & {
-    data?: string,
+    data?: BookBoDto,
 
 })`
  */
@@ -509,7 +549,7 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
     ) =>
       this.request<
         BaseResponseDto & {
-          data?: string;
+          data?: BookBoDto;
         },
         any
       >({
@@ -668,13 +708,16 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
   };
   hero = {
     /**
-     * No description
-     *
-     * @tags hero
-     * @name FindHero
-     * @request GET:/hero
-     * @response `200` `object`
-     */
+ * No description
+ *
+ * @tags hero
+ * @name FindHero
+ * @request GET:/hero
+ * @response `200` `(BaseResponseDto & {
+    data?: FindOneRespDto,
+
+})`
+ */
     findHero: (
       query: {
         age: number;
@@ -683,7 +726,12 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       },
       params: RequestParams = {},
     ) =>
-      this.request<object, any>({
+      this.request<
+        BaseResponseDto & {
+          data?: FindOneRespDto;
+        },
+        any
+      >({
         path: `/hero`,
         method: "GET",
         query: query,
@@ -692,15 +740,23 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
       }),
 
     /**
-     * No description
-     *
-     * @tags hero
-     * @name FindAccount
-     * @request GET:/hero/getAccount
-     * @response `200` `object`
-     */
+ * No description
+ *
+ * @tags hero
+ * @name FindAccount
+ * @request GET:/hero/getAccount
+ * @response `200` `(BaseResponseDto & {
+    data?: FindManyRespDto,
+
+})`
+ */
     findAccount: (params: RequestParams = {}) =>
-      this.request<object, any>({
+      this.request<
+        BaseResponseDto & {
+          data?: FindManyRespDto;
+        },
+        any
+      >({
         path: `/hero/getAccount`,
         method: "GET",
         format: "json",

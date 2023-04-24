@@ -67,6 +67,7 @@ const util_1 = require("../src/util");
 let packages = {};
 let moduleName = "";
 const serviceList = [];
+const isDtoReg = /Dto(\s\|\snull)?$/;
 const templateStr = "%s";
 const useNameFmter = ({ outputTemplate, inputTemplate }) => {
     if (outputTemplate === inputTemplate) {
@@ -180,6 +181,41 @@ function getImportLine(dependency, from, options) {
         }
     }
     return `import type { ${importedTypes} } from '${filePath}';`;
+}
+function getImportClassLine(dependency, from, options) {
+    const filePath = from === undefined
+        ? "./" + getImportPath(dependency)
+        : getRelativeImportPath(from, dependency);
+    const { outputName, inputName } = useNameFmter(options);
+    const typeInterfaceName = getTypeInterfaceName(dependency);
+    let importedTypes;
+    /* If the dependency is defined within a message, it will be generated in that
+     * message's file and exported using its typeInterfaceName. */
+    if (dependency.parent instanceof Protobuf.Type) {
+        if (dependency instanceof Protobuf.Type ||
+            dependency instanceof Protobuf.Enum) {
+            importedTypes = `${inputName(typeInterfaceName)}, ${outputName(typeInterfaceName)}`;
+        }
+        else if (dependency instanceof Protobuf.Service) {
+            importedTypes = `${typeInterfaceName}Client, ${typeInterfaceName}Definition`;
+        }
+        else {
+            throw new Error("Invalid object passed to getImportLine");
+        }
+    }
+    else {
+        if (dependency instanceof Protobuf.Type ||
+            dependency instanceof Protobuf.Enum) {
+            importedTypes = `${inputName(dependency.name)}Dto as ${inputName(typeInterfaceName)}Dto,${outputName(dependency.name)}Dto as ${outputName(typeInterfaceName)}Dto`;
+        }
+        else if (dependency instanceof Protobuf.Service) {
+            importedTypes = `${dependency.name}Client as ${typeInterfaceName}Client, ${dependency.name}Definition as ${typeInterfaceName}Definition`;
+        }
+        else {
+            throw new Error("Invalid object passed to getImportLine");
+        }
+    }
+    return `import { ${importedTypes} } from '${filePath}';`;
 }
 function getChildMessagesAndEnums(namespace) {
     const messageList = [];
@@ -307,7 +343,7 @@ function generatePermissiveMessageInterface(formatter, messageType, options, nam
     formatter.unindent();
     formatter.writeLine("}");
 }
-function getTypeNameRestricted(fieldType, resolvedType, repeated, map, options) {
+function getTypeNameRestricted(fieldType, resolvedType, repeated, map, options, isDto = false) {
     const { outputName } = useNameFmter(options);
     switch (fieldType) {
         case "double":
@@ -361,20 +397,20 @@ function getTypeNameRestricted(fieldType, resolvedType, repeated, map, options) 
                 /* null is only used to represent absent message values if the defaults
                  * option is set, and only for non-repeated, non-map fields. */
                 if (options.defaults && !repeated && !map) {
-                    return `${outputName(typeInterfaceName)} | null`;
+                    return `${outputName(typeInterfaceName)}${isDto ? "Dto" : ""} | null`;
                 }
                 else {
-                    return `${outputName(typeInterfaceName)}`;
+                    return `${outputName(typeInterfaceName)}${isDto ? "Dto" : ""}`;
                 }
             }
             else {
                 // Enum
-                return outputName(typeInterfaceName);
+                return outputName(typeInterfaceName) + isDto ? "Dto" : "";
             }
     }
 }
-function getFieldTypeRestricted(field, options) {
-    const valueType = getTypeNameRestricted(field.type, field.resolvedType, field.repeated, field.map, options);
+function getFieldTypeRestricted(field, options, isDto = false) {
+    const valueType = getTypeNameRestricted(field.type, field.resolvedType, field.repeated, field.map, options, isDto);
     if (field instanceof Protobuf.MapField) {
         const keyType = field.keyType === "string" ? "string" : "number";
         return `{[key: ${keyType}]: ${valueType}}`;
@@ -400,6 +436,7 @@ function generateRestrictedMessageInterface(formatter, messageType, options, nam
         return;
     }
     formatter.writeLine(`export interface ${outputName(nameOverride !== null && nameOverride !== void 0 ? nameOverride : messageType.name)} {`);
+    formatter.writeLine(`/*test*/`);
     formatter.indent();
     for (const field of messageType.fieldsArray) {
         let fieldGuaranteed;
@@ -441,12 +478,167 @@ function generateRestrictedMessageInterface(formatter, messageType, options, nam
     formatter.unindent();
     formatter.writeLine("}");
 }
+function generateDtoMessageInterface(formatter, messageType, options, nameOverride) {
+    var _a, _b, _c;
+    const { outputName } = useNameFmter(options);
+    if (options.includeComments) {
+        formatComment(formatter, messageType.comment, messageType.options);
+    }
+    if (messageType.fullName === ".google.protobuf.Any" && options.json) {
+        /* This describes the behavior of the Protobuf.js Any wrapper toObject
+         * replacement function */
+        let optionalString = options.defaults ? "" : "?";
+        formatter.writeLine(`export type ${outputName("Any")} = AnyExtension | {`);
+        formatter.writeLine(`  type_url${optionalString}: string;`);
+        formatter.writeLine(`  value${optionalString}: ${getTypeNameRestricted("bytes", null, false, false, options)};`);
+        formatter.writeLine("}");
+        return;
+    }
+    formatter.writeLine(`export class ${messageType.name}Dto {`);
+    // formatter.writeLine(`/*dto*/`);
+    formatter.indent();
+    for (const field of messageType.fieldsArray) {
+        let fieldGuaranteed;
+        if (field.partOf) {
+            // The field is not guaranteed populated if it is part of a oneof
+            fieldGuaranteed = false;
+        }
+        else if (field.repeated) {
+            fieldGuaranteed = (_a = (options.defaults || options.arrays)) !== null && _a !== void 0 ? _a : false;
+        }
+        else if (field.map) {
+            fieldGuaranteed = (_b = (options.defaults || options.objects)) !== null && _b !== void 0 ? _b : false;
+        }
+        else {
+            fieldGuaranteed = (_c = options.defaults) !== null && _c !== void 0 ? _c : false;
+        }
+        const optionalString = fieldGuaranteed ? "" : "?";
+        const repeatedString = field.repeated ? "[]" : "";
+        const type = getFieldTypeRestricted(field, options, true);
+        if (options.includeComments) {
+            formatComment(formatter, field.comment, field.options);
+        }
+        // console.log(type);
+        if (field.repeated) {
+            formatter.writeLine(`@ApiProperty({type: [${type.replace(/\s\|\snull$/, "")}]})`);
+        }
+        else if (isDtoReg.test(type)) {
+            formatter.writeLine(`@ApiProperty({type: ()=>${type.replace(/\s\|\snull$/, "")}})`);
+        }
+        else {
+            formatter.writeLine(`@ApiProperty()`);
+        }
+        formatter.writeLine(`'${field.name}'${optionalString}: (${type})${repeatedString};`);
+    }
+    if (options.oneofs) {
+        for (const oneof of messageType.oneofsArray) {
+            const typeString = oneof.fieldsArray
+                .map((field) => `"${field.name}"`)
+                .join("|");
+            if (options.includeComments) {
+                formatComment(formatter, oneof.comment, oneof.options);
+            }
+            if (isDtoReg.test(typeString)) {
+                formatter.writeLine(`@ApiProperty({type: ()=>${typeString.replace(/\s|\snull$/, "")}})`);
+            }
+            else {
+                formatter.writeLine(`@ApiProperty()`);
+            }
+            // formatter.writeLine(`@ApiProperty({ type: () => ${typeString} })`);
+            //@ApiProperty({ type: () => _mwp_m1_HeroBo__OutputDto })
+            formatter.writeLine(`'${oneof.name}': ${typeString};`);
+        }
+    }
+    if (options.outputBranded) {
+        formatTypeBrand(formatter, messageType);
+    }
+    formatter.unindent();
+    formatter.writeLine("}");
+}
+function generateDtoRestrictedMessageInterface(formatter, messageType, options, nameOverride) {
+    var _a, _b, _c;
+    const { outputName } = useNameFmter(options);
+    if (options.includeComments) {
+        formatComment(formatter, messageType.comment, messageType.options);
+    }
+    if (messageType.fullName === ".google.protobuf.Any" && options.json) {
+        /* This describes the behavior of the Protobuf.js Any wrapper toObject
+         * replacement function */
+        let optionalString = options.defaults ? "" : "?";
+        formatter.writeLine(`export type ${outputName("Any")} = AnyExtension | {`);
+        formatter.writeLine(`  type_url${optionalString}: string;`);
+        formatter.writeLine(`  value${optionalString}: ${getTypeNameRestricted("bytes", null, false, false, options)};`);
+        formatter.writeLine("}");
+        return;
+    }
+    formatter.writeLine(`export class ${outputName(nameOverride !== null && nameOverride !== void 0 ? nameOverride : messageType.name)}Dto {`);
+    // formatter.writeLine(`/*dto*/`);
+    formatter.indent();
+    for (const field of messageType.fieldsArray) {
+        let fieldGuaranteed;
+        if (field.partOf) {
+            // The field is not guaranteed populated if it is part of a oneof
+            fieldGuaranteed = false;
+        }
+        else if (field.repeated) {
+            fieldGuaranteed = (_a = (options.defaults || options.arrays)) !== null && _a !== void 0 ? _a : false;
+        }
+        else if (field.map) {
+            fieldGuaranteed = (_b = (options.defaults || options.objects)) !== null && _b !== void 0 ? _b : false;
+        }
+        else {
+            fieldGuaranteed = (_c = options.defaults) !== null && _c !== void 0 ? _c : false;
+        }
+        const optionalString = fieldGuaranteed ? "" : "?";
+        const repeatedString = field.repeated ? "[]" : "";
+        const type = getFieldTypeRestricted(field, options, true);
+        if (options.includeComments) {
+            formatComment(formatter, field.comment, field.options);
+        }
+        // formatter.writeLine(`@ApiProperty()`);
+        if (field.repeated) {
+            formatter.writeLine(`@ApiProperty({type: [${type.replace(/\s\|\snull$/, "")}]})`);
+        }
+        else if (isDtoReg.test(type)) {
+            formatter.writeLine(`@ApiProperty({type: ()=>${type.replace(/\s\|\snull$/, "")}})`);
+        }
+        else {
+            formatter.writeLine(`@ApiProperty()`);
+        }
+        formatter.writeLine(`'${field.name}'${optionalString}: (${type})${repeatedString};`);
+    }
+    if (options.oneofs) {
+        for (const oneof of messageType.oneofsArray) {
+            const typeString = oneof.fieldsArray
+                .map((field) => `"${field.name}"`)
+                .join("|");
+            if (options.includeComments) {
+                formatComment(formatter, oneof.comment, oneof.options);
+            }
+            if (isDtoReg.test(typeString)) {
+                formatter.writeLine(`@ApiProperty({type: ()=>${typeString.replace(/\s\|\snull$/, "")}})`);
+            }
+            else {
+                formatter.writeLine(`@ApiProperty()`);
+            }
+            // formatter.writeLine(`@ApiProperty()`);
+            formatter.writeLine(`'${oneof.name}': ${typeString};`);
+        }
+    }
+    if (options.outputBranded) {
+        formatTypeBrand(formatter, messageType);
+    }
+    formatter.unindent();
+    formatter.writeLine("}");
+}
 function generateMessageInterfaces(formatter, messageType, options) {
     var _a, _b;
     let usesLong = false;
     let seenDeps = new Set();
     const childTypes = getChildMessagesAndEnums(messageType);
     formatter.writeLine(`// Original file: ${(_b = ((_a = messageType.filename) !== null && _a !== void 0 ? _a : "null")) === null || _b === void 0 ? void 0 : _b.replace(/\\/g, "/")}`);
+    formatter.writeLine("/* eslint-disable */");
+    formatter.writeLine(`import {ApiProperty} from '@nestjs/swagger';`);
     formatter.writeLine("");
     const isLongField = (field) => ["int64", "uint64", "sint64", "fixed64", "sfixed64"].includes(field.type);
     messageType.fieldsArray.sort((fieldA, fieldB) => fieldA.id - fieldB.id);
@@ -458,6 +650,7 @@ function generateMessageInterfaces(formatter, messageType, options) {
             }
             seenDeps.add(dependency.fullName);
             formatter.writeLine(getImportLine(dependency, messageType, options));
+            formatter.writeLine(getImportClassLine(dependency, messageType, options));
         }
         if (isLongField(field)) {
             usesLong = true;
@@ -493,6 +686,9 @@ function generateMessageInterfaces(formatter, messageType, options) {
             generatePermissiveMessageInterface(formatter, childType, options, nameOverride);
             formatter.writeLine("");
             generateRestrictedMessageInterface(formatter, childType, options, nameOverride);
+            generateDtoMessageInterface(formatter, childType, options, nameOverride);
+            formatter.writeLine("");
+            generateDtoRestrictedMessageInterface(formatter, childType, options, nameOverride);
         }
         else {
             generateEnumInterface(formatter, childType, options, nameOverride);
@@ -502,12 +698,17 @@ function generateMessageInterfaces(formatter, messageType, options) {
     generatePermissiveMessageInterface(formatter, messageType, options);
     formatter.writeLine("");
     generateRestrictedMessageInterface(formatter, messageType, options);
+    formatter.writeLine("");
+    formatter.writeLine("");
+    generateDtoMessageInterface(formatter, messageType, options);
+    generateDtoRestrictedMessageInterface(formatter, messageType, options);
 }
 function generateEnumInterface(formatter, enumType, options, nameOverride) {
     var _a, _b, _c;
     const { inputName, outputName } = useNameFmter(options);
     const name = nameOverride !== null && nameOverride !== void 0 ? nameOverride : enumType.name;
     formatter.writeLine(`// Original file: ${(_b = ((_a = enumType.filename) !== null && _a !== void 0 ? _a : "null")) === null || _b === void 0 ? void 0 : _b.replace(/\\/g, "/")}`);
+    formatter.writeLine("/* eslint-disable */");
     formatter.writeLine("");
     if (options.includeComments) {
         formatComment(formatter, enumType.comment, enumType.options);
@@ -728,7 +929,7 @@ function generateServiceClientInterface(formatter, serviceType, options) {
                     formatter.writeLine(`${name}(argument: ${requestType}, options: grpc.CallOptions, callback: ${callbackType}): ${callType};`);
                     formatter.writeLine(`${name}(argument: ${requestType}, callback: ${callbackType}): ${callType};`);
                     // (data: req, meta?: Metadata) => Observable<resp>
-                    formatter.writeLine(`${name}(argument: ${requestType}, metadata?: Metadata) : Observable<${responseType}>;`);
+                    formatter.writeLine(`${name}(argument: ${requestType}Dto, metadata?: Metadata) : Observable<${responseType}Dto>;`);
                     // formatter.writeLine(
                     //   `${name} : ICallFunction<${requestType},${responseType}>;`
                     // );
@@ -812,7 +1013,9 @@ function generateServiceInterfaces(formatter, serviceType, options) {
         dependencies.add(method.resolvedResponseType);
     }
     for (const dep of Array.from(dependencies.values()).sort(compareName)) {
+        // console.log(dep, serviceType); // genflag
         formatter.writeLine(getImportLine(dep, serviceType, options));
+        formatter.writeLine(getImportClassLine(dep, serviceType, options));
     }
     formatter.writeLine("");
     generateServiceClientInterface(formatter, serviceType, options);

@@ -3,18 +3,20 @@ import type { MethodDefinition } from '@grpc/proto-loader';
 import { Observable } from 'rxjs';
 import { Metadata } from '@grpc/grpc-js';
 import type { FindAccountReq as _mwp_m2_FindAccountReq, FindAccountReq__Output as _mwp_m2_FindAccountReq__Output } from '../../mwp/m2/FindAccountReq';
+import { FindAccountReqDto as _mwp_m2_FindAccountReqDto } from '../../mwp/m2/FindAccountReq';
 import type { FindAccountResp as _mwp_m2_FindAccountResp, FindAccountResp__Output as _mwp_m2_FindAccountResp__Output } from '../../mwp/m2/FindAccountResp';
+import { FindAccountResp__OutputDto as _mwp_m2_FindAccountResp__OutputDto } from '../../mwp/m2/FindAccountResp';
 export interface AccountServiceClient extends grpc.Client {
     FindAccount(argument: _mwp_m2_FindAccountReq, metadata: grpc.Metadata, options: grpc.CallOptions, callback: grpc.requestCallback<_mwp_m2_FindAccountResp__Output>): grpc.ClientUnaryCall;
     FindAccount(argument: _mwp_m2_FindAccountReq, metadata: grpc.Metadata, callback: grpc.requestCallback<_mwp_m2_FindAccountResp__Output>): grpc.ClientUnaryCall;
     FindAccount(argument: _mwp_m2_FindAccountReq, options: grpc.CallOptions, callback: grpc.requestCallback<_mwp_m2_FindAccountResp__Output>): grpc.ClientUnaryCall;
     FindAccount(argument: _mwp_m2_FindAccountReq, callback: grpc.requestCallback<_mwp_m2_FindAccountResp__Output>): grpc.ClientUnaryCall;
-    FindAccount(argument: _mwp_m2_FindAccountReq, metadata?: Metadata): Observable<_mwp_m2_FindAccountResp__Output>;
+    FindAccount(argument: _mwp_m2_FindAccountReqDto, metadata?: Metadata): Observable<_mwp_m2_FindAccountResp__OutputDto>;
     findAccount(argument: _mwp_m2_FindAccountReq, metadata: grpc.Metadata, options: grpc.CallOptions, callback: grpc.requestCallback<_mwp_m2_FindAccountResp__Output>): grpc.ClientUnaryCall;
     findAccount(argument: _mwp_m2_FindAccountReq, metadata: grpc.Metadata, callback: grpc.requestCallback<_mwp_m2_FindAccountResp__Output>): grpc.ClientUnaryCall;
     findAccount(argument: _mwp_m2_FindAccountReq, options: grpc.CallOptions, callback: grpc.requestCallback<_mwp_m2_FindAccountResp__Output>): grpc.ClientUnaryCall;
     findAccount(argument: _mwp_m2_FindAccountReq, callback: grpc.requestCallback<_mwp_m2_FindAccountResp__Output>): grpc.ClientUnaryCall;
-    findAccount(argument: _mwp_m2_FindAccountReq, metadata?: Metadata): Observable<_mwp_m2_FindAccountResp__Output>;
+    findAccount(argument: _mwp_m2_FindAccountReqDto, metadata?: Metadata): Observable<_mwp_m2_FindAccountResp__OutputDto>;
 }
 export interface AccountServiceHandlers extends grpc.UntypedServiceImplementation {
     FindAccount: grpc.handleUnaryCall<_mwp_m2_FindAccountReq__Output, _mwp_m2_FindAccountResp>;

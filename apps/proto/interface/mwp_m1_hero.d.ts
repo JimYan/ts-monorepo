@@ -7,6 +7,7 @@ type SubtypeConstructor<Constructor extends new (...args: any) => any, Subtype> 
 export interface ProtoGrpcType {
     mwp: {
         m1: {
+            ExtroBo: MessageTypeDefinition;
             FindManyReq: MessageTypeDefinition;
             FindManyResp: MessageTypeDefinition;
             FindOneReq: MessageTypeDefinition;

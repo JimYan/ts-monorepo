@@ -12,6 +12,7 @@ export interface ProtoGrpcType {
             BookService: SubtypeConstructor<typeof grpc.Client, _mwp_m1_BookServiceClient> & {
                 service: _mwp_m1_BookServiceDefinition;
             };
+            ExtroBo: MessageTypeDefinition;
             FindBookReq: MessageTypeDefinition;
             FindBookResp: MessageTypeDefinition;
             FindManyReq: MessageTypeDefinition;

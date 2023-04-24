@@ -8,3 +8,13 @@ export interface BookBo__Output {
     'title': (string);
     'author': (string);
 }
+export declare class BookBoDto {
+    'id': (number);
+    'title': (string);
+    'author': (string);
+}
+export declare class BookBo__OutputDto {
+    'id': (number);
+    'title': (string);
+    'author': (string);
+}
