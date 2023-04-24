@@ -1,20 +1,47 @@
-import { Button } from "@nighttrax/components/button";
+// import { Button } from "@nighttrax/components";
 import { meaningOfLife } from "@nighttrax/foo";
 import React, { useState } from "react";
 import reactLogo from "../../assets/react.svg";
 import { Link } from "react-router-dom";
-
-import Mb from "@mui/material/Button";
+// import { useQuery } from "@tanstack/react-query";
+import Button from "@mui/material/Button";
 import Switch from "@mui/material/Switch";
+import { Api, useQueryApi, useMutationApi } from "../../libs/api";
 import "./App.css";
 
 const label = { inputProps: { "aria-label": "Switch demo" } };
 
 const App = () => {
   const [count, setCount] = useState(meaningOfLife);
+  const { data, isLoading } = useQueryApi(
+    Api.account.allAccount,
+    ["account", "Allaccount"],
+    {
+      name: "jimyantest",
+    }
+  );
+
+  const { data: error2 } = useQueryApi(Api.account.error2, [
+    "account2",
+    "error2",
+  ]);
+
+  const { data: data3 } = useQueryApi(
+    Api.account.getInfo,
+    ["account2", "error3"],
+    { id: 3 }
+  );
+
+  // const {data,isLoading} = useQuery({queryKey:["asdf"],queryFn:Api.account.allAccount})
+  const {
+    data: mdata,
+    isLoading: misloading,
+    mutate,
+  } = useMutationApi(Api.account.updateUser);
+  // data
 
   return (
-    <div className="App">
+    <div className="App px-2">
       <div>
         <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
           <img src="/vite.svg" className="logo" alt="Vite logo" />
@@ -22,18 +49,38 @@ const App = () => {
         <a href="https://reactjs.org" target="_blank" rel="noreferrer">
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
+        <p>
+          code:{isLoading ? "..." : ""} {data?.data?.info}
+        </p>
+        <p>{error2?.data}</p>
+        <p>
+          {data3?.data?.list &&
+            data3?.data?.list?.length > 0 &&
+            data3?.data?.list[0].email}
+        </p>
+        <p>
+          m:{misloading ? "..." : ""} {mdata?.data?.info}
+          <button
+            type="button"
+            onClick={() => {
+              mutate({ name: "jimyanasdf" });
+            }}
+          >
+            加载
+          </button>
+        </p>
       </div>
       <h1>Vite + React</h1>
       <div className="card">
         <Switch {...label} size="small" color="warning" />
         <Button />
-        <Mb
+        <Button
           variant="outlined"
           className="text-3xl"
           onClick={() => setCount((count) => count + 1)}
         >
           count is {count}
-        </Mb>
+        </Button>
         <p className="text-3xl text-red-500">
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>

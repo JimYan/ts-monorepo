@@ -2,7 +2,12 @@ import { INestApplication } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 // const { generateApi, generateTemplates } = require('swagger-typescript-api');
 import { generateApi, generateTemplates } from 'swagger-typescript-api';
-import { baseResponseDto } from './common/Decorator';
+import {
+  ApiArrayResponse,
+  ApiResponse,
+  ApiClassResponse,
+  baseResponseDto,
+} from './common/Decorator';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -17,7 +22,12 @@ export const swaggerInit = (app: INestApplication) => {
     // .setResponseWrapper()
     .build();
   const document = SwaggerModule.createDocument(app, options, {
-    extraModels: [baseResponseDto],
+    extraModels: [
+      baseResponseDto,
+      ApiArrayResponse,
+      ApiResponse,
+      ApiClassResponse,
+    ],
     operationIdFactory: (controllerKey: string, methodKey: string) => methodKey,
   });
 
@@ -36,6 +46,7 @@ export const swaggerInit = (app: INestApplication) => {
     output: outPath,
     input: swaggerPath,
     httpClientType: 'fetch', // or "fetch"
+    // templates: path.join(__dirname, '../templates/default'),
     // defaultResponseAsSuccess: false,
     generateClient: true,
     generateRouteTypes: true,
@@ -44,7 +55,7 @@ export const swaggerInit = (app: INestApplication) => {
     // extractRequestParams: false,
     // extractRequestBody: false,
     // extractEnums: false,
-    // unwrapResponseData: false,
+    unwrapResponseData: true,
     prettier: {
       // By default prettier config is load from your project
       printWidth: 120,

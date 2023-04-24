@@ -7,7 +7,6 @@ import {
 } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
 import { Validator } from 'class-validator';
-// import { baseResponseDto } from './base.dto';
 
 export class baseResponseDto<TData> {
   @ApiProperty()
@@ -16,7 +15,21 @@ export class baseResponseDto<TData> {
   message: string;
   @ApiProperty()
   tid: string;
+
   data: TData;
+  @ApiProperty()
+  timestamp: string;
+}
+
+export class pageDto<TData> {
+  @ApiProperty()
+  pageIndex: number;
+  @ApiProperty()
+  pageCount: number;
+  @ApiProperty()
+  perpage: number;
+  // @ApiProperty()
+  list: TData[];
 }
 
 export function ValidateArgs() {
@@ -61,7 +74,7 @@ export function ValidateArgs() {
   };
 }
 
-export const ApiBaseResponse = <TModel extends Type<any>>(model: TModel) => {
+export const ApiClassResponse = <TModel extends Type<any>>(model: TModel) => {
   return applyDecorators(
     ApiExtraModels(model),
     ApiOkResponse({
@@ -71,6 +84,82 @@ export const ApiBaseResponse = <TModel extends Type<any>>(model: TModel) => {
           {
             properties: {
               data: { $ref: getSchemaPath(model) },
+            },
+          },
+        ],
+      },
+    }),
+  );
+};
+
+export const ApiPageResponse = <TModel extends Type<any>>(model: TModel) => {
+  return applyDecorators(
+    ApiExtraModels(model),
+    ApiExtraModels(pageDto),
+    ApiOkResponse({
+      schema: {
+        allOf: [
+          { $ref: getSchemaPath(baseResponseDto) },
+          {
+            properties: {
+              data: {
+                allOf: [
+                  { $ref: getSchemaPath(pageDto) },
+                  {
+                    properties: {
+                      list: {
+                        type: 'array',
+                        items: { $ref: getSchemaPath(model) },
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        ],
+      },
+    }),
+  );
+};
+
+export const ApiArrayResponse = <TModel extends Type<any>>(model: TModel) => {
+  return applyDecorators(
+    ApiExtraModels(model),
+    ApiOkResponse({
+      schema: {
+        allOf: [
+          { $ref: getSchemaPath(baseResponseDto) },
+          {
+            properties: {
+              data: { type: 'array', items: { $ref: getSchemaPath(model) } },
+            },
+          },
+        ],
+      },
+    }),
+  );
+};
+
+export const ApiResponse = <TModel extends Type<any>>(
+  type: 'string' | 'number' | 'boolean' | 'array' | 'class' | 'page',
+  model?: TModel,
+) => {
+  if (type === 'class') {
+    return ApiClassResponse(model);
+  } else if (type === 'array') {
+    return ApiArrayResponse(model);
+  } else if (type === 'page') {
+    return ApiPageResponse(model);
+  }
+  return applyDecorators(
+    ApiOkResponse({
+      schema: {
+        allOf: [
+          { $ref: getSchemaPath(baseResponseDto) },
+          {
+            properties: {
+              data: { type },
             },
           },
         ],

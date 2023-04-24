@@ -12,7 +12,7 @@ import Tab from "@mui/material/Tab";
 import Detail from "./components/detail";
 import Todos from "./components/todo";
 import { count } from "../../stores/book";
-import { setItem, getItem } from "@nighttrax/lib";
+// import { setItem, getItem } from "@nighttrax/lib";
 
 const User = () => {
   const [value, setValue] = useAtom(count);
@@ -23,9 +23,9 @@ const User = () => {
     setTabs(newValue);
   };
 
-  setItem("testkey", { a: "av", b: "bv" }, 10);
+  // setItem("testkey", { a: "av", b: "bv" }, 10);
 
-  const v = getItem<{ a: string; b: string }>("testkey");
+  // const v = getItem<{ a: string; b: string }>("testkey");
 
   const add = () => {
     setValue((pre) => pre + 1);
@@ -41,7 +41,7 @@ const User = () => {
                 +1
               </Button>
             </div>
-            <p className="mt-2 text-red-400">缓存：{v ? v.a : "Null"}</p>
+            {/* <p className="mt-2 text-red-400">缓存：{v ? v.a : "Null"}</p> */}
             <p className="mt-2 text-red-500">总数：{value}</p>
           </div>
 

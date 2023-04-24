@@ -17,19 +17,19 @@ export class userDto {
 
   @IsNotEmpty()
   name: string;
+
+  @IsNumber()
+  uid: number;
 }
 
 export class helloDataDto {
-  // @ApiProperty()
   id: number;
-  // @ApiProperty()
   name: string;
-  // @ApiProperty()
   s: string;
-
-  // @ApiProperty()
   user: userDto;
-
-  // @ApiProperty()
   x: string;
+}
+
+export class AllAccountDto {
+  info: string;
 }

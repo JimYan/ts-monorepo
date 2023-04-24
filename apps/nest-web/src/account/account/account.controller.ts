@@ -12,12 +12,13 @@ import {
 } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { UserException } from 'src/common/exception/UserException';
-import { ApiBaseResponse } from 'src/common/Decorator';
+import { ApiResponse, pageDto } from 'src/common/Decorator';
 import {
   queryDto,
   userDto,
   helloDataDto,
   queryAccountDto,
+  AllAccountDto,
 } from './account.dto';
 import { Cache } from 'cache-manager';
 import {
@@ -26,7 +27,7 @@ import {
   CacheKey,
   CacheTTL,
 } from '@nestjs/cache-manager';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiExtraModels, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('account')
 @ApiTags('Account')
@@ -40,7 +41,7 @@ export class AccountController {
   private readonly cacheManager: Cache;
 
   @Get()
-  @ApiBaseResponse(helloDataDto)
+  @ApiResponse('string')
   index2(@Query() query: queryAccountDto) {
     console.log(query);
     return 'index';
@@ -49,26 +50,37 @@ export class AccountController {
   @UseInterceptors(CacheInterceptor)
   @CacheTTL(10)
   @Get('/info')
-  async getInfo(@Query() query: queryDto): Promise<{
-    account: any;
-    time: string;
-  }> {
+  @ApiResponse('page', userDto)
+  // @ApiPageResponse(userDto)
+  async getInfo(@Query() query: queryDto): Promise<pageDto<userDto>> {
     this.logger.debug('info...');
     this.logger.log('info...');
     this.logger.warn('info...');
     this.logger.error('error...');
+    // type x = AccountService.getInfo.
+
     return {
-      account: await this.accountService.getInfo(
+      pageCount: 0,
+      pageIndex: 1,
+      perpage: 10,
+      list: [
         {
-          id: query.id,
-          email: 'asd@qq.com',
+          email: 'j@qq.com',
+          uid: 1,
+          name: 'j',
         },
-        {
-          p1: 'p1v',
-          p2: 2,
-        },
-      ),
-      time: new Date().toISOString(),
+      ],
+      // account: await this.accountService.getInfo(
+      //   {
+      //     id: query.id,
+      //     email: 'asd@qq.com',
+      //   },
+      //   {
+      //     p1: 'p1v',
+      //     p2: 2,
+      //   },
+      // ),
+      // time: new Date().toISOString(),
     };
   }
 
@@ -78,16 +90,41 @@ export class AccountController {
   }
 
   @Get('/all')
-  async all() {
-    return {};
+  async all(): Promise<{ a: number; b: string }> {
+    return Promise.resolve({
+      a: 1,
+      b: '2',
+    });
   }
 
   @Get('/error2')
+  // @ApiExtraModels(baseParamResponse)
+  @ApiResponse('string')
   error2() {
-    const a = null as any;
-    a.forEach((element) => {
-      console.log(element + 1);
-    });
+    // const a = null as any;
+    // a.forEach((element) => {
+    //   console.log(element + 1);
+    // });
     return 'asdf';
+  }
+
+  @Get('/allAccount')
+  @ApiResponse('class', AllAccountDto)
+  async allAccount(@Query() query: queryAccountDto) {
+    return new Promise((reslove) => {
+      setTimeout(function () {
+        reslove({ info: query.name });
+      }, 1000);
+    });
+  }
+
+  @Post('/update')
+  @ApiResponse('class', AllAccountDto)
+  async updateUser(@Body() body: queryAccountDto) {
+    return new Promise((reslove) => {
+      setTimeout(function () {
+        reslove({ info: body.name });
+      }, 1000);
+    });
   }
 }
