@@ -1,9 +1,14 @@
 /* eslint-disable no-shadow-restricted-names */
-import { Api as ApiImpl, RequestParams } from "./api.impl";
+// import { Api as ApiImpl, RequestParams } from "./api.impl";
+import { Api as ApiImpl, RequestParams } from "@nighttrax/api/src/api.impl";
 import { useQuery, useMutation } from "@tanstack/react-query";
 
+console.log("asdf");
+console.log(import.meta.env);
+
 export const Api = new ApiImpl({
-  baseUrl: "http://127.0.0.1:3001",
+  // baseUrl: "http://127.0.0.1:3001",
+  baseUrl: import.meta.env.VITE_API_PATH,
 });
 
 export function useQueryApi<FN extends (..._arguments_: any[]) => any>(

@@ -9,13 +9,13 @@ import { ConfigModule } from '@nestjs/config';
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    CacheModule.register<RedisClientOptions>({
+    CacheModule.register({
       // isGlobal: true,
-      store: redisStore,
-      host: process.env.redisHost,
-      port: process.env.redisPort,
-      password: process.env.redisPassword,
-      db: 0,
+      // store: redisStore,
+      // host: process.env.redisHost,
+      // port: process.env.redisPort,
+      // password: process.env.redisPassword,
+      // db: 0,
     }),
   ],
   controllers: [AccountController],

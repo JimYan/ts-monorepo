@@ -19,13 +19,23 @@ import { M2Module } from '@nighttrax/proto/handle/M2Module';
     ConfigModule.forRoot(),
     ScheduleModule.forRoot(),
     AccountModule,
-    CacheModule.register<RedisClientOptions>({
+    // CacheModule.register<RedisClientOptions>({
+    //   // isGlobal: true,
+    //   store: redisStore,
+    //   host: process.env.redisHost,
+    //   port: process.env.redisPort,
+    //   password: process.env.redisPassword,
+    //   db: 1,
+    // }),
+    CacheModule.register({
+      isGlobal: true,
+      // store:
       // isGlobal: true,
-      store: redisStore,
-      host: process.env.redisHost,
-      port: process.env.redisPort,
-      password: process.env.redisPassword,
-      db: 1,
+      // store: redisStore,
+      // host: process.env.redisHost,
+      // port: process.env.redisPort,
+      // password: process.env.redisPassword,
+      // db: 1,
     }),
     HeroModule,
     M1Module

@@ -12,7 +12,7 @@ export interface IResp<T = unknown> {
 }
 export type IError = Omit<IResp, "data">;
 
-let prefix = "/";
+let prefix = import.meta.env.VITE_API_PATH || "/";
 
 // eslint-disable-next-line no-return-assign
 export const setPrefix = (path: string) => (prefix = path);

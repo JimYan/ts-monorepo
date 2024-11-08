@@ -1,11 +1,8 @@
 {
-  "name": "@nighttrax/lib",
+  "name": "@nighttrax/api",
   "version": "1.0.0",
-  "main": "dist/index",
-  "types": "dist/index",
-  "files": [
-    "dist"
-  ],
+  "main": "src/index",
+  "types": "src/index",
   "scripts": {
     "build": "pnpm run clean && pnpm run compile",
     "clean": "rimraf ./dist",
@@ -13,7 +10,6 @@
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
-    "@nighttrax/foo": "workspace:*",
     "@tanstack/react-query": "^4.28.0"
   },
   "devDependencies": {

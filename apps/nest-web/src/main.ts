@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ErrorFilter } from './common/exception/error/error.filter';
 import { AllexceptionFilter } from './common/exception/allexception/allexception.filter';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { TransformInterceptorInterceptor } from './common/interceptor/transform-interceptor/transform-interceptor.interceptor';
 import { swaggerInit } from './swagger';
 
@@ -28,10 +28,13 @@ async function bootstrap() {
   // 包装全局返回内容
   app.useGlobalInterceptors(new TransformInterceptorInterceptor());
 
+  Logger.log(`process.env.NODE_ENV: ${JSON.stringify(process.env)}`);
+  console.log(process.env);
   if (process.env.NODE_ENV === 'dev') {
     swaggerInit(app);
   }
 
+  Logger.log(`app start at port 3001`);
   await app.listen(3001);
 }
 bootstrap();
